@@ -369,7 +369,7 @@ print_crps_diff_histogram_loosing_power <- function(dt) {
 #' This method creates a pdf with the plots of the histograms of the difference of the crps values.
 #' @param dt is the result of the [sim_e_values(usual.forecasts = TRUE)]. But it has to have the usual.forecasts = TRUE.
 #' @param filename to save the pdf to.
-#' @examples print_crps_diff_histogram_usual_forecasts(dt, "/test")
+#' @examples \dontrun{print_crps_diff_histogram_usual_forecasts(dt, "/test")}
 #' @export
 print_crps_diff_histogram_usual_forecasts <- function(dt, filename) {
   t.crps.dif <- filter_tibble_for_usual_forecasts(dt$uncompacted) %>%
