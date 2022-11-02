@@ -105,6 +105,7 @@ e_value_calculate_lambda_for_grapa_betting <- function(T.F.G) {
 #' @param crps.F.para of the form list("mu" = mu, "sd" = 1)
 #' @param crps.G.para of the form list("mu" = -mu, "sd" = 1)
 #' @param inf.crps = infimum of crps.F - crps.G over y
+#' @param method = list("GRAPA", "lambda", "alternative", "alternative-mean"), is a list containing all the method names for calculating the different lambdas, only parameter used in this method is 'alternative-mean'
 #' @export
 e_value_calculate_lambda_for_alternative_betting <- function(T.F.G, crps.F.para, crps.G.para, inf.crps, method) {
   y.sim.conf <- crps.G.para$rnorm(length(T.F.G))
