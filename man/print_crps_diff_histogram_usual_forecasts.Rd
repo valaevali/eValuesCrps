@@ -15,5 +15,5 @@ print_crps_diff_histogram_usual_forecasts(dt, filename)
 This method creates a pdf with the plots of the histograms of the difference of the crps values.
 }
 \examples{
-print_crps_diff_histogram_usual_forecasts(dt, "/test")
+\dontrun{print_crps_diff_histogram_usual_forecasts(dt, "/test")}
 }
