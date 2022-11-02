@@ -7,5 +7,5 @@ rlang::env_binding_lock(env = asNamespace('testthat'))
 rlang::env_lock(asNamespace('testthat'))
 
 if (Sys.getenv("NOT_CRAN") == "true") {
-  test_check("evalues")
+  test_check("eValuesCrps")
 }
