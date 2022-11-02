@@ -1,0 +1,21 @@
+# Default ignored files
+/shelf/
+/.idea/
+# Datasource local storage ignored files
+/../../../../../../../../:\Users\valer\Documents\UNI\Masterarbeit\evalues\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+/target/full*
+/target/run*
+**/*.tex*
+**/*.aux*
+**/*.log*
+**/*.toc*
+**/*.gz*
+**/*.nav*
+**/*.out*
+**/*.snm*
+**/*.sty*
+**/*.bak*
+/ma/ma_presentation/UFGTeX-Presentation-master/README.md
