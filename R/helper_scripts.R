@@ -163,7 +163,7 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, ...) {
     crps.fun <- \(y) { scoringRules::crps_mixnorm(y = y, m = mu, s = sd, w = w) }
     crps.fun.y.matrix <- \(y) { sapply(1:dim(y)[2], \(i) { scoringRules::crps_mixnorm(y = y[, i], m = mu, s = sd, w = w) }) }
     rnorm.fun <- \(n) { matrix(rnorm(n * n.obs, mean = mu, sd = sd), nrow = n.obs) }
-    inf.crps.fun <- \(x, j) { scoringRules::crps_mixnorm(y = x, m = as.matrix(t(mu[j,])), s = sd, w = w) }
+    inf.crps.fun <- \(x, j) { scoringRules::crps_mixnorm(y = x, m = as.matrix(mu[j,], nrow = 1), s = sd, w = w) }
   } else {
     method <- 'norm'
     crps.fun <- \(y) { scoringRules::crps_norm(y = y, mean = mu, sd = sd) }
