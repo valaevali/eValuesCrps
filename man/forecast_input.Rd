@@ -4,16 +4,16 @@
 \alias{forecast_input}
 \title{This is a helper function which returns the correct form for the forecast input for [sim_e_values()].}
 \usage{
-forecast_input(forecast.name, mu, sd, w = NA)
+forecast_input(mu, sd, w = NA)
 }
 \arguments{
-\item{forecast.name}{is the name of the forecast.}
-
 \item{mu}{is the mean of the forecast, can be constant, vector or matrix.}
 
 \item{sd}{is the variance of the forecast, can be a constant, vector or matrix.}
 
 \item{w}{= NA, optional, is the weight of a mixed forecast, can be a constant, vector or matrix.}
+
+\item{forecast.name}{is the name of the forecast.}
 }
 \description{
 This is a helper function which returns the correct form for the forecast input for [sim_e_values()].
