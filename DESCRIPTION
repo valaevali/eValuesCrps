@@ -13,6 +13,7 @@ Imports:
         base,
         forecast,
         stringr,
+        stringi,
         tidyr,
         ggplot2,
         Rmisc,
