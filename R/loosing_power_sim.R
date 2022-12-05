@@ -1,3 +1,5 @@
+#' This method provides predefined forecasts.
+#' @export
 special_forecasts <- function(mu, tau, n.obs, loosing.power.forecasts = FALSE, usual.forecasts = TRUE) {
   forecasts <- list("perfect" = list("mu" = mu, "sd" = 1, "main" = TRUE))
   if (loosing.power.forecasts == TRUE) {

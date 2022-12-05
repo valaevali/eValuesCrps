@@ -1,15 +1,22 @@
 library(testthat)
 
+test_that("test e_value does return evalue", {
+  expect_type(
+    e_value(rnorm(10), forecast_input(mu = rnorm(10), sd = 1), forecast_input(mu = -rnorm(10), sd = 1)),
+    "list"
+  )
+})
+
 test_that("test forecast_input", {
   expect_type(
-    forecast_input("perfect", rnorm(100), 1),
+    forecast_input(rnorm(100), 1),
     "list"
   )
 })
 
 test_that("test forecast_input mixnorm", {
   expect_type(
-    forecast_input("mixnorm", "mu" = cbind(rnorm(100), rnorm(100) + 1), "sd" = matrix(nrow = 100, ncol = 2, 1), "w" = matrix(nrow = 100, ncol = 2, 1 / 2)),
+    forecast_input("mu" = cbind(rnorm(100), rnorm(100) + 1), "sd" = matrix(nrow = 100, ncol = 2, 1), "w" = matrix(nrow = 100, ncol = 2, 1 / 2)),
     "list"
   )
 })

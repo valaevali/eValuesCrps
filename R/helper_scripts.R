@@ -2,6 +2,7 @@
 # Created by: Velerie Haftka
 # Created on: 26.01.2022
 
+#' @export
 check_input_simulation <- function(n.it, n.obs, loosing.power.only, method, lambda, p.value.method, forecasts.input, loosing.power.forecasts, usual.forecasts, file.folder) {
   if (is.na(n.it) || !is.numeric(n.it)) {
     warning("Number of iterations should be a not-null numeric. Setting to default 200.")
@@ -52,6 +53,7 @@ check_input_simulation <- function(n.it, n.obs, loosing.power.only, method, lamb
   return(list("n.it" = n.it, "n.obs" = n.obs, "loosing.power.only" = loosing.power.only, "method" = method, "lambda" = lambda, "p.value.method" = p.value.method, "forecasts.input" = forecasts.input, "loosing.power.forecasts" = loosing.power.forecasts, "usual.forecasts" = usual.forecasts, "file.folder" = file.folder))
 }
 
+#' @export
 check_input <- function(y, crps.F.para, crps.G.para, it, method, lambda, p.value.method) {
   if (is.na(y) || !is.vector(y)) {
     stop("The parameter y had to be a vector.")
@@ -88,6 +90,7 @@ check_input <- function(y, crps.F.para, crps.G.para, it, method, lambda, p.value
   return(list("it" = it, "method" = method, "lambda" = lambda, "p.value.method" = p.value.method))
 }
 
+#' @export
 check_input_crps_para <- function(crps.para, f.g) {
   if (all(is.na(crps.para))) {
     stop(sprintf("The CRPS parameter should not be empty for %s.", f.g))
@@ -125,25 +128,17 @@ check_input_crps_para <- function(crps.para, f.g) {
 #' @param sd is the variance of the forecast, can be a constant, vector or matrix.
 #' @param w = NA, optional, is the weight of a mixed forecast, can be a constant, vector or matrix.
 #' @export
-forecast_input <- function(forecast.name, mu, sd, w = NA) {
+forecast_input <- function(mu, sd, w = NA) {
   if (is.na(w)) {
-    return(list(forecast.name = list("mu" = mu, "sd" = sd)))
+    return(list("mu" = mu, "sd" = sd))
   }
-  return(list(forecast.name = list("mu" = mu, "sd" = sd, "w" = w)))
+  return(list("mu" = mu, "sd" = sd, "w" = w))
 }
 
-# This method makes a gitter search for global minima
+#' This method makes a gitter search for global minima
+#' @export
 optim_inf_value <- function(f, start.points = 2, min.value = 0.0001, max.value = 1) {
   min(sapply(seq(min.value, max.value, length.out = start.points), \(y) { optim(y, f, lower = min.value, upper = max.value, method = "L-BFGS-B")$value }))
-}
-
-#' This method returns the R object save it the file with getwd() + filename.
-#' @param filename is the name of the file.
-#' @returns the R object in the file.
-#' @examples \dontrun{getFile("/test.rds")}
-#' @export
-getFile <- function(filename) {
-  readRDS(paste0(getwd(), filename))
 }
 
 #' This methods creates the additional functions from the input parameters for the calculations of lambda.
@@ -173,246 +168,4 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, ...) {
   }
   return(list("method" = method, "fun" = crps.fun, "crps.fun.y.matrix" = crps.fun.y.matrix,
               "rnorm" = rnorm.fun, "inf.fun" = inf.crps.fun))
-}
-
-#' This method creates a pdf with the plots of the rejection rate of the forecasts with bias in the mean or variance.
-#' @param dt is the result of the [sim_e_values(loosing.power.forecasts = TRUE)]. But it has to have the loosing.power.forecasts = TRUE.
-#' @export
-print_rej_rate_perfect_loosing_power <- function(dt) {
-  to.print <- dt$evaluated %>%
-    filter(grepl("perfect", names.F) & names.G == 'perfect') %>%
-    mutate(e = stringr::str_extract(names.F, "[.0-9]+"),
-           mean.sd = stringr::str_extract(names.F, "perfect-[a-z]")
-    ) %>%
-    ungroup() %>%
-    select(-c(names.F, names.G)) %>%
-    tidyr::pivot_longer(!c(e, mean.sd), names_to = "key", values_to = "rej_rate") %>%
-    mutate(key = stringr::str_replace_all(key, ".prod.H0.rej", "")) %>%
-    mutate(key = stringr::str_replace_all(key, ".H0.rej", "")) %>%
-    arrange(key)
-
-  g.m <- ggplot2::ggplot(to.print %>% filter(grepl("-m", mean.sd)) %>% select(-mean.sd), ggplot2::aes(x = as.numeric(e), y = rej_rate, color = key)) +
-    ggplot2::geom_line(ggplot2::aes(group = key)) +
-    ggplot2::geom_hline(yintercept = 5, linetype = "dotted") +
-    ggplot2::scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1)) +
-    ggplot2::labs(x = "epsilon") +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.s <- ggplot2::ggplot(to.print %>% filter(grepl("-s", mean.sd)) %>% select(-mean.sd), ggplot2::aes(x = as.numeric(e), y = rej_rate, color = key)) +
-    ggplot2::geom_line(ggplot2::aes(group = key)) +
-    ggplot2::geom_hline(yintercept = 5, linetype = "dotted") +
-    ggplot2::scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1)) +
-    ggplot2::labs(x = "epsilon") +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  Rmisc::multiplot(g.m, g.s, cols = 1)
-}
-
-#' This method creates a pdf with the plots of the histograms of the overall time difference of the e-values.
-#' @param dt is the result of the [sim_e_values(loosing.power.forecasts = TRUE)]. But it has to have the loosing.power.forecasts = TRUE.
-#' @export
-print_e_values_histogram_loosing_power <- function(dt) {
-  t.e.values <- dt$uncompacted %>%
-    filter(grepl("perfect", names.F) & names.G == 'perfect') %>%
-    select(contains(c("names", "e.value"))) %>%
-    select(!contains(".prod")) %>%
-    tidyr::unnest(contains("e.value")) %>%
-    mutate(names = paste0(names.F, ".", names.G)) %>%
-    select(-c(names.F, names.G)) %>%
-    group_by(names) %>%
-    dplyr::mutate(across(contains("e.value"), ~mean(.x), .names = "{.col}.mean"))
-
-  g.grapa.m <- ggplot2::ggplot((t.e.values %>% filter(grepl("-m-", names))), ggplot2::aes(x = e.value.grapa, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = (t.e.values %>% filter(grepl("-m-", names))), ggplot2::aes(xintercept = e.value.grapa.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.grapa.s <- ggplot2::ggplot((t.e.values %>% filter(grepl("-s-", names))), ggplot2::aes(x = e.value.grapa, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = (t.e.values %>% filter(grepl("-s-", names))), ggplot2::aes(xintercept = e.value.grapa.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.05.m <- ggplot2::ggplot((t.e.values %>% filter(grepl("-m-", names))), ggplot2::aes(x = e.value.lambda, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = (t.e.values %>% filter(grepl("-m-", names))), ggplot2::aes(xintercept = e.value.lambda.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.05.s <- ggplot2::ggplot((t.e.values %>% filter(grepl("-s-", names))), ggplot2::aes(x = e.value.lambda, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = (t.e.values %>% filter(grepl("-s-", names))), ggplot2::aes(xintercept = e.value.lambda.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.alt.cons.m <- ggplot2::ggplot((t.e.values %>% filter(grepl("-m-", names))), ggplot2::aes(x = e.value.alt.conf, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = (t.e.values %>% filter(grepl("-m-", names))), ggplot2::aes(xintercept = e.value.alt.conf.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.alt.cons.s <- ggplot2::ggplot((t.e.values %>% filter(grepl("-s-", names))), ggplot2::aes(x = e.value.alt.conf, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = (t.e.values %>% filter(grepl("-s-", names))), ggplot2::aes(xintercept = e.value.alt.conf.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.alt.conf.m <- ggplot2::ggplot((t.e.values %>% filter(grepl("-m-", names))), ggplot2::aes(x = e.value.alt.cons, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = (t.e.values %>% filter(grepl("-m-", names))), ggplot2::aes(xintercept = e.value.alt.cons.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.alt.conf.s <- ggplot2::ggplot((t.e.values %>% filter(grepl("-s-", names))), ggplot2::aes(x = e.value.alt.cons, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = (t.e.values %>% filter(grepl("-s-", names))), ggplot2::aes(xintercept = e.value.alt.cons.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  Rmisc::multiplot(g.05.m, g.05.s, cols = 1)
-  Rmisc::multiplot(g.grapa.m, g.grapa.s, cols = 1)
-  Rmisc::multiplot(g.alt.conf.m, g.alt.conf.s, cols = 1)
-  Rmisc::multiplot(g.alt.cons.m, g.alt.cons.s, cols = 1)
-}
-
-#' This method creates a pdf with the plots of the histograms of the overall time difference of the e-values.
-#' @param dt is the result of the [sim_e_values(usual.forecasts = TRUE)]. But it has to have the usual.forecasts = TRUE.
-#' @export
-print_e_values_histogram_usual_forecasts <- function(dt) {
-  t.e.values <- filter_tibble_for_usual_forecasts(dt$uncompacted) %>%
-    select(contains(c("names", "e.value"))) %>%
-    select(!contains(".prod")) %>%
-    tidyr::unnest(contains("e.value")) %>%
-    mutate(names = paste0(names.F, ".", names.G)) %>%
-    select(-c(names.F, names.G)) %>%
-    group_by(names) %>%
-    dplyr::mutate(across(contains("e.value"), ~mean(.x), .names = "{.col}.mean"))
-
-  g.grapa.m <- ggplot2::ggplot(t.e.values, ggplot2::aes(x = e.value.grapa, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = t.e.values, ggplot2::aes(xintercept = e.value.grapa.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.grapa.s <- ggplot2::ggplot(t.e.values, ggplot2::aes(x = e.value.grapa, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = t.e.values, ggplot2::aes(xintercept = e.value.grapa.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.05.m <- ggplot2::ggplot(t.e.values, ggplot2::aes(x = e.value.lambda, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = t.e.values, ggplot2::aes(xintercept = e.value.lambda.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.05.s <- ggplot2::ggplot(t.e.values, ggplot2::aes(x = e.value.lambda, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = t.e.values, ggplot2::aes(xintercept = e.value.lambda.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.alt.cons.m <- ggplot2::ggplot(t.e.values, ggplot2::aes(x = e.value.alt.conf, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = t.e.values, ggplot2::aes(xintercept = e.value.alt.conf.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.alt.cons.s <- ggplot2::ggplot(t.e.values, ggplot2::aes(x = e.value.alt.conf, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = t.e.values, ggplot2::aes(xintercept = e.value.alt.conf.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.alt.conf.m <- ggplot2::ggplot(t.e.values, ggplot2::aes(x = e.value.alt.cons, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = t.e.values, ggplot2::aes(xintercept = e.value.alt.cons.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.alt.conf.s <- ggplot2::ggplot(t.e.values, ggplot2::aes(x = e.value.alt.cons, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = t.e.values, ggplot2::aes(xintercept = e.value.alt.cons.mean, color = names)) +
-    ggplot2::xlim(-1, 3) +
-    ggplot2::ylim(0, 100000) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  Rmisc::multiplot(g.05.m, g.05.s, cols = 1)
-  Rmisc::multiplot(g.grapa.m, g.grapa.s, cols = 1)
-  Rmisc::multiplot(g.alt.conf.m, g.alt.conf.s, cols = 1)
-  Rmisc::multiplot(g.alt.cons.m, g.alt.cons.s, cols = 1)
-}
-
-#' This method creates a pdf with the plots of the histograms of the difference of the crps values.
-#' @param dt is the result of the [sim_e_values(loosing.power.forecasts = TRUE)]. But it has to have the loosing.power.forecasts = TRUE.
-#' @export
-print_crps_diff_histogram_loosing_power <- function(dt) {
-  t.crps.dif <- dt$uncompacted %>%
-    filter(grepl("perfect", names.F) & names.G == 'perfect') %>%
-    select(names.F, crps.F, crps.G) %>%
-    tidyr::unnest(c(crps.F, crps.G)) %>%
-    mutate(dif.crps = crps.F - crps.G) %>%
-    select(names.F, dif.crps) %>%
-    group_by(names.F) %>%
-    dplyr::mutate(mean = mean(dif.crps)) %>%
-    ungroup()
-
-  g.m <- ggplot2::ggplot(t.crps.dif %>% filter(grepl("-m-", names.F)), ggplot2::aes(x = dif.crps, fill = names.F, color = names.F)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = (t.crps.dif %>% filter(grepl("-m-", names.F))), ggplot2::aes(xintercept = mean, color = names.F)) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  g.s <- ggplot2::ggplot(t.crps.dif %>% filter(grepl("-s-", names.F)), ggplot2::aes(x = dif.crps, fill = names.F, color = names.F)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = (t.crps.dif %>% filter(grepl("-s-", names.F))), ggplot2::aes(xintercept = mean, color = names.F)) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  Rmisc::multiplot(g.m, g.s, cols = 1)
-}
-
-#' This method creates a pdf with the plots of the histograms of the difference of the crps values.
-#' @param dt is the result of the [sim_e_values(usual.forecasts = TRUE)]. But it has to have the usual.forecasts = TRUE.
-#' @param filename to save the pdf to.
-#' @examples \dontrun{print_crps_diff_histogram_usual_forecasts(dt, "/test")}
-#' @export
-print_crps_diff_histogram_usual_forecasts <- function(dt, filename) {
-  t.crps.dif <- filter_tibble_for_usual_forecasts(dt$uncompacted) %>%
-    select(names.F, names.G, it, crps.F, crps.G) %>%
-    tidyr::unnest(c(crps.F, crps.G)) %>%
-    mutate(dif.crps = crps.F - crps.G, names = paste0(names.F, "-", names.G)) %>%
-    select(names, dif.crps) %>%
-    group_by(names) %>%
-    dplyr::mutate(mean = mean(dif.crps)) %>%
-    ungroup()
-
-  gg <- ggplot2::ggplot(t.crps.dif, ggplot2::aes(x = dif.crps, fill = names, color = names)) +
-    ggplot2::geom_histogram(bins = 50, alpha = 0.4) +
-    ggplot2::geom_vline(data = t.crps.dif, ggplot2::aes(xintercept = mean, color = names)) +
-    ggplot2::theme(text = ggplot2::element_text(size = 20))
-  ggplot2::ggsave(paste0(getwd(), filename, ".pdf"), gg, limitsize = FALSE)
-}
-
-#' This method filters the outcome of the [sim_e_values()] for the usual forecasts.
-#' @param dt is the result of the [sim_e_values(usual.forecasts = TRUE)]. But it has to have the usual.forecasts = TRUE.
-#' @export
-filter_tibble_for_usual_forecasts <- function(dt) {
-  return(dt %>%
-           filter(!grepl("perfect-", names.F) & !grepl("perfect-", names.G)))
-}
-
-#' This method filters the outcome of the [sim_e_values()] for the usual forecasts and relocates the p-value-column to the end.
-#' @param dt is the result of the [sim_e_values(usual.forecasts = TRUE)]. But it has to have the usual.forecasts = TRUE.
-#' @export
-filter_tibble_for_usual_forecasts_and_prettify <- function(dt) {
-  return(filter_tibble_for_usual_forecasts(dt) %>%
-           relocate(p.value.H0.rej, .after = last_col()))
-}
-
-#' This method prints the plots of a method and saves them to a file.
-#' @param fileName of the resulting file.
-#' @param fun = \(x) {function to be called (x) }, can be any function that produces an output.
-#' @param data is the data to be put into fun. Usually return of [sim_e_values()].
-#' @param paper = "A4", can be replaced with "A4r" for rotated A4.
-#' @examples \dontrun{printPlot("test", \(x) {print_crps_diff_histogram_usual_forecasts(x)}, dt)}
-#' @export
-printPlot <- function(fileName, fun, data, paper = "A4") {
-  pdf(paste0(getwd(), "/target/", fileName, ".pdf"), paper = paper)
-  fun(data)
-  dev.off()
 }
