@@ -74,8 +74,13 @@ get_inf_crps <- function(crps.F.para, crps.G.para) {
       return(abs(min(crps.F.para$mu - crps.G.para$mu)))
     }
   } else {
-    return(abs(optim_inf_value(\(x) { crps.F.para$inf.fun(x, 1) - crps.G.para$inf.fun(x, 1) },
-                               min.value = -10, max.value = 10)))
+    if (crps.F.para$method == 'norm') {
+      return(abs(min(sapply(seq_along(crps.F.para$mu), \(i) {optim_inf_value(\(x) { crps.F.para$fun(x) - crps.G.para$inf.fun(x, i) },
+                                 min.value = -10, max.value = 10)}))))
+    } else {
+      return(abs(min(sapply(seq_along(crps.G.para$mu), \(i) {optim_inf_value(\(x) { crps.F.para$inf.fun(x, i) - crps.G.para$fun(x) },
+                                                                             min.value = -10, max.value = 10)}))))
+    }
   }
 }
 
