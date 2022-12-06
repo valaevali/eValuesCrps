@@ -165,19 +165,15 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, ...) {
     crps.fun.y.matrix <- crps.fun
     rnorm.fun <- \(n) { matrix(rnorm(n * n.obs, mean = mu, sd = sd), nrow = n.obs) }
 
-    if(is.vector(mu)) {
-      mu.fun <- \(i) {mu[i]}
+    if(is.vector(mu) & is.vector(sd) ) {
+      inf.crps.fun <- \(x, j) { scoringRules::crps_norm(y = x, mean = mu[j], sd = sd[j]) }
+    } else if (is.vector(mu) & !is.vector(sd)){
+      inf.crps.fun <- \(x, j) { scoringRules::crps_norm(y = x, mean = mu[j], sd = sd) }
+    } else if (!is.vector(mu) & is.vector(sd)) {
+      inf.crps.fun <- \(x, j) { scoringRules::crps_norm(y = x, mean = mu, sd = sd[j]) }
     } else {
-      mu.fun <- \(i) {mu}
+      inf.crps.fun <- \(x, j) { scoringRules::crps_norm(y = x, mean = mu, sd = sd) }
     }
-
-    if (is.vector(sd)) {
-      sd.fun <- \(i) {sd[i]}
-    } else {
-      sd.fun <- \(i) {sd}
-    }
-
-    inf.crps.fun <- \(x, j) { scoringRules::crps_norm(y = x, mean = mu.fun(j), sd = sd.fun(j)) }
   }
   return(list("method" = method, "fun" = crps.fun, "crps.fun.y.matrix" = crps.fun.y.matrix,
               "rnorm" = rnorm.fun, "inf.fun" = inf.crps.fun))

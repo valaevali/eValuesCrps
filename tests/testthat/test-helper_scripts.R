@@ -16,6 +16,15 @@ test_that("test e_value does return evalue for mixnorm", {
   )
 })
 
+mu <- rnorm(10)
+tau <- sample(c(-1, 1), 10, replace = TRUE)
+test_that("test e_value does return evalue for mixnorm and climatological", {
+  expect_type(
+    e_value(rnorm(10), forecast_input(mu = 0, sd = 1), forecast_input(mu = cbind(mu, mu + tau), sd = matrix(nrow = 10, ncol = 2, 1), w = matrix(nrow = 10, ncol = 2, 1 / 2))),
+    "list"
+  )
+})
+
 test_that("test forecast_input", {
   expect_type(
     forecast_input(rnorm(100), 1),
