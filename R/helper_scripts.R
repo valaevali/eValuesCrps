@@ -164,7 +164,20 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, ...) {
     crps.fun <- \(y) { scoringRules::crps_norm(y = y, mean = mu, sd = sd) }
     crps.fun.y.matrix <- crps.fun
     rnorm.fun <- \(n) { matrix(rnorm(n * n.obs, mean = mu, sd = sd), nrow = n.obs) }
-    inf.crps.fun <- \(x, j) { scoringRules::crps_norm(y = x, mean = mu[j], sd = sd) }
+
+    if(is.vector(mu)) {
+      mu.fun <- \(i) {mu[i]}
+    } else {
+      mu.fun <- \(i) {mu}
+    }
+
+    if (is.vector(sd)) {
+      sd.fun <- \(i) {sd[i]}
+    } else {
+      sd.fun <- \(i) {sd}
+    }
+
+    inf.crps.fun <- \(x, j) { scoringRules::crps_norm(y = x, mean = mu.fun(j), sd = sd.fun(j)) }
   }
   return(list("method" = method, "fun" = crps.fun, "crps.fun.y.matrix" = crps.fun.y.matrix,
               "rnorm" = rnorm.fun, "inf.fun" = inf.crps.fun))
