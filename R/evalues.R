@@ -3,8 +3,8 @@
 #'
 #' @param y oberservations y \in R^k
 #' @param mu is the mean parameter for y ~ N(mu, 1)
-#' @param crps.F.para of the form list("mu" = mu, "sd" = 1) plus the list created with [create_crps_fun()]
-#' @param crps.G.para of the form list("mu" = mu, "sd" = 1) plus the list created with [create_crps_fun()]
+#' @param crps.F.para of the form list("mu" = mu, "sd" = 1), here mu and sd do not have to be of the same form, but for mixnorm, they all have to have the same dimensions
+#' @param crps.G.para of the form list("mu" = mu, "sd" = 1), here mu and sd do not have to be of the same form, but for mixnorm, they all have to have the same dimensions
 #' @param it = 1, is only importend when used with [sim_e_values()] and specifies which iteration it is
 #' @param method = list("GRAPA", "lambda", "alternative", "alternative-mean"), is a list containing all the method names for calculating the different lambdas
 #' @param lambda = 0.5, lambda entry for a fixed value
