@@ -20,12 +20,13 @@ e_value <- function(y, crps.F.para, crps.G.para, it = 1,
 
   crps.F.para <- base::append(crps.F.para, rlang::exec(create_crps_fun, length(y), !!!crps.F.para))
   crps.G.para <- base::append(crps.G.para, rlang::exec(create_crps_fun, length(y), !!!crps.G.para))
+  n.obs <- length(y)
 
   crps.F <- crps.F.para$fun(y)
   crps.G <- crps.G.para$fun(y)
 
   # Calculating inf.crps
-  inf.crps <- get_inf_crps(crps.F.para, crps.G.para)
+  inf.crps <- get_inf_crps(crps.F.para, crps.G.para, n.obs)
 
   T.F.G <- (crps.F - crps.G) / inf.crps
   e.values <- list("crps.F.fun" = crps.F.para, "crps.F" = crps.F, "crps.G.fun" = crps.G.para, "crps.G" = crps.G,
@@ -60,7 +61,7 @@ e_value <- function(y, crps.F.para, crps.G.para, it = 1,
 #' @param crps.F.para of the form list("mu" = mu, "sd" = 1)
 #' @param crps.G.para of the form list("mu" = -mu, "sd" = 1)
 #' @export
-get_inf_crps <- function(crps.F.para, crps.G.para) {
+get_inf_crps <- function(crps.F.para, crps.G.para, n.obs) {
   # Check if F and G are of the form N(mu,sigma^2)
   if (crps.F.para$method == 'norm' &&
     crps.G.para$method == 'norm') {
@@ -74,11 +75,6 @@ get_inf_crps <- function(crps.F.para, crps.G.para) {
       return(abs(min(crps.F.para$mu - crps.G.para$mu)))
     }
   } else {
-    if (crps.F.para$method == 'norm') {
-      n.obs <- seq_along(crps.F.para$mu)
-    } else {
-      n.obs <- seq_along(crps.G.para$mu)
-    }
     return(abs(min(sapply(n.obs, \(i) {optim_inf_value(\(x) { crps.F.para$inf.fun(x, i) - crps.G.para$inf.fun(x, i) },
                                                                            min.value = -10, max.value = 10)}))))
   }
