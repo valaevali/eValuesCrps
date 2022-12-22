@@ -165,11 +165,11 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, ...) {
     crps.fun.y.matrix <- crps.fun
     rnorm.fun <- \(n) { matrix(rnorm(n * n.obs, mean = mu, sd = sd), nrow = n.obs) }
 
-    if(is.vector(mu) & is.vector(sd) ) {
+    if(length(mu) > 1 & length(sd) > 1 ) {
       inf.crps.fun <- \(x, j) { scoringRules::crps_norm(y = x, mean = mu[j], sd = sd[j]) }
-    } else if (is.vector(mu) & !is.vector(sd)){
+    } else if (length(mu) > 1 & length(sd) == 1){
       inf.crps.fun <- \(x, j) { scoringRules::crps_norm(y = x, mean = mu[j], sd = sd) }
-    } else if (!is.vector(mu) & is.vector(sd)) {
+    } else if (length(mu) == 1 & length(sd) > 1) {
       inf.crps.fun <- \(x, j) { scoringRules::crps_norm(y = x, mean = mu, sd = sd[j]) }
     } else {
       inf.crps.fun <- \(x, j) { scoringRules::crps_norm(y = x, mean = mu, sd = sd) }
