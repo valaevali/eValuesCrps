@@ -238,9 +238,8 @@ cdf_rf <- function(points, cdf, thresholds) {
 
   cdf0 <- function(data) {
     # Evaluate CDF (stepfun) at thresholds
-    stats::stepfun(x = data$points, y = c(0, data$cdf))(thresholds)
+    stats::stepfun(x = data[1], y = c(0, data[2]))(thresholds)
   }
 
-  cdfVals <- lapply(list("points"=points, "cdf"=cdf), cdf0)
-  do.call(rbind, cdfVals)
+  apply(cbind(points, cdf), 1, cdf0)
 }
