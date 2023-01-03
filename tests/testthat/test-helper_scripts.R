@@ -45,3 +45,21 @@ test_that("test optim_inf_values returns inf_value", {
     0
   )
 })
+
+mu <- rnorm(10)
+inf.fun <- \(x, j) {scoringRules::crps_norm(y = x, mean = mu[j], sd = 1)}
+test_that("input for perfect returns correct inf fun", {
+  expect_equal(
+    create_crps_fun(mu = mu, sd = 1)$inf.fun(0.5, 5),
+    inf.fun(0.5, 5)
+  )
+})
+
+inf.fun <- \(x, j) {scoringRules::crps_norm(y = x, mean = 0, sd = 2)}
+test_that("input for climatological returns correct inf fun", {
+  expect_equal(
+    create_crps_fun(mu = 0, sd = 2)$inf.fun(0.5, 5),
+    inf.fun(0.5, 5)
+  )
+})
+

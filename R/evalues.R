@@ -76,7 +76,7 @@ get_inf_crps <- function(crps.F.para, crps.G.para, n.obs) {
     }
   } else {
     return(abs(min(sapply((1:n.obs), \(i) {optim_inf_value(\(x) { crps.F.para$inf.fun(x, i) - crps.G.para$inf.fun(x, i) },
-                                                                           min.value = -10, max.value = 10)}))))
+                                                           min.value = -10, max.value = 10)}))))
   }
 }
 
