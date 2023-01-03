@@ -182,7 +182,7 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points = NA, cdf
     method <- 'raw'
     crps.fun <- \(y) { crps_rf(y = y, points = points, cdf = cdf) }
     crps.fun.y.matrix <- crps.fun
-    sample.fun <- \(n) { cdf_rf(points = poins, cdf = cdf, thresholds = 1:n) }
+    sample.fun <- \(n) { cdf_rf(points = points, cdf = cdf, thresholds = 1:n) }
     inf.crps.fun <- \(x, j) { crps_rf(y = x, points = points[j], cdf = cdf[j]) }
   } else {
     method <- 'norm'
