@@ -182,7 +182,7 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points = NA, cdf
     method <- 'raw'
     crps.fun <- \(y) { crps_rf(y = y, points = points, cdf = cdf) }
     crps.fun.y.matrix <- crps.fun
-    sample.fun <- \(n) { cdf_rf(points = points, cdf = cdf, thresholds = 1:n) }
+    sample.fun <- \(n) { matrix(rcdf_rf(points = points, cdf = cdf, n = n * n.obs), nrow = n.obs) }
     inf.crps.fun <- \(x, j) { crps_rf(y = x, points = points[j], cdf = cdf[j]) }
   } else {
     method <- 'norm'
@@ -232,14 +232,15 @@ crps_rf <- function(y, points, cdf) {
   mapply(crps0, y = y, cdf, w = w, x = points)
 }
 
-cdf_rf <- function(points, cdf, thresholds) {
+rcdf_rf <- function(points, cdf, n, lower = -10, upper = 10) {
   if (!is.vector(thresholds, "numeric"))
     stop("'thresholds' must be a numeric vector")
 
-  cdf0 <- function(data) {
+  r <- runif(n, min = lower, max = upper)
+  cdf0 <- function(r) {
     # Evaluate CDF (stepfun) at thresholds
-    stats::stepfun(x = data[1], y = c(0, data[2]))(thresholds)
+    stats::stepfun(x = points, y = c(0, cdf))(r)
   }
 
-  apply(cbind(points, cdf), 1, cdf0)
+  sapply(r, cdf0)
 }
