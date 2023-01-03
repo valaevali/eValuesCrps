@@ -241,6 +241,6 @@ cdf_rf <- function(points, cdf, thresholds) {
     stats::stepfun(x = data$points, y = c(0, data$cdf))(thresholds)
   }
 
-  cdfVals <- lapply(c(points, cdf), cdf0)
+  cdfVals <- lapply(list("points"=points, "cdf"=cdf), cdf0)
   do.call(rbind, cdfVals)
 }
