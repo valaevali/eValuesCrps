@@ -180,10 +180,10 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points = NA, cdf
     inf.crps.fun <- \(x, j) { scoringRules::crps_mixnorm(y = x, m = as.matrix(t(mu[j,]), nrow = 1), s = as.matrix(t(sd[1,])), w = as.matrix(t(w[1,]))) }
   } else if (!all(is.na(points)) && !all(is.na(cdf))) {
     method <- 'raw'
-    crps.fun <- \(y) { crps_rf(y = y, points = points, cdf = cdf) }
-    crps.fun.y.matrix <- \(y) { sapply(1:dim(y)[2], \(i) { crps_rf(y = y[, i], points = points, cdf = cdf) }) }
+    crps.fun <- \(y) { sapply(seq_along(y), \(i) {scoringRules::crps_sample(y = y[i], points = points, cdf = cdf) })}
+    crps.fun.y.matrix <- \(y) { sapply(1:dim(y)[2], \(i) {scoringRules::crps_sample(y = y[, i], dat = matrix(rep(points, length(y[,i])), nrow=n.obs), w = matrix(rep(cdf, length(y[,i])), nrow = n.obs)) }) }
     sample.fun <- \(n) { matrix(rcdf_rf(points = points, cdf = cdf, n = n * n.obs), nrow = n.obs) }
-    inf.crps.fun <- \(x, j) { crps_rf(y = x, points = points[j], cdf = cdf[j]) }
+    inf.crps.fun <- \(x, j) { scoringRules::crps_sample(y = x, points = points[j], cdf = cdf[j]) }
   } else {
     method <- 'norm'
     crps.fun <- \(y) { scoringRules::crps_norm(y = y, mean = mu, sd = sd) }
@@ -202,34 +202,6 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points = NA, cdf
   }
   return(list("method" = method, "fun" = crps.fun, "crps.fun.y.matrix" = crps.fun.y.matrix,
               "sample.fun" = sample.fun, "inf.fun" = inf.crps.fun))
-}
-
-#' This function calculates the CRPS for an Input of the form (observations, points, predicted cdf).
-#' @description Computes the CRPS of raw forecasts.
-#'
-#' @param y a vector of observations, or a scalar (in this case, the y value will be used for all predictions)
-#' @param points where the cdfs jump
-#' @param cdf
-#'
-#' @details
-#' This function uses adapted code taken from the function \code{cprs.idr} of the \pkg{isodistrreg} package.
-#'
-#' @return A vector of CRPS values
-#'
-#' @export
-crps_rf <- function(y, points, cdf) {
-  # Check input
-  if (!is.vector(y, "numeric"))
-    stop("obs must be a numeric vector")
-  if (length(y) != 1 &&
-    length(y) != length(points) &&
-    length(y) != length(cdf))
-    stop("y must have length 1 or the same length as x and p")
-
-  w <- lapply(cdf, function(x) c(x[1], diff(x)))
-
-  crps0 <- function(y, p, w, x) 2 * sum(w * ((y < x) - p + 0.5 * w) * (x - y))
-  mapply(crps0, y = y, cdf, w = w, x = points)
 }
 
 #' @export
