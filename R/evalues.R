@@ -69,14 +69,14 @@ get_inf_crps <- function(crps.F.para, crps.G.para, n.obs) {
     if (crps.F.para$sd != crps.G.para$sd) {
       # Here we have to take the minimum of the null.value vector => otherwise this is not the minimum
       null.value <- min((sqrt(2 * crps.F.para$sd) * crps.G.para$mu - sqrt(2 * crps.G.para$sd) * crps.F.para$mu) /
-        (sqrt(2 * crps.F.para$sd) - sqrt(2 * crps.G.para$sd)))
+                          (sqrt(2 * crps.F.para$sd) - sqrt(2 * crps.G.para$sd)))
       return(abs(min(crps.F.para$fun(null.value) - crps.G.para$fun(null.value))))
     } else {
       return(abs(min(crps.F.para$mu - crps.G.para$mu)))
     }
   } else {
-    return(abs(min(sapply((1:n.obs), \(i) {optim_inf_value(\(x) { crps.F.para$inf.fun(x, i) - crps.G.para$inf.fun(x, i) },
-                                                           min.value = -10, max.value = 10)}))))
+    return(abs(min(sapply((1:n.obs), \(i) { optim_inf_value(\(x) { crps.F.para$inf.fun(x, i) - crps.G.para$inf.fun(x, i) },
+                                                            min.value = -10, max.value = 10) }))))
   }
 }
 
@@ -109,22 +109,17 @@ e_value_calculate_lambda_for_grapa_betting <- function(T.F.G) {
 #' @param method = list("GRAPA", "lambda", "alternative", "alternative-mean"), is a list containing all the method names for calculating the different lambdas, only parameter used in this method is 'alternative-mean'
 #' @export
 e_value_calculate_lambda_for_alternative_betting <- function(T.F.G, crps.F.para, crps.G.para, inf.crps, method) {
-  y.sim.conf <- crps.G.para$sample.fun(length(T.F.G))
-  y.sim.cons <- (0.15 * crps.F.para$sample.fun(length(T.F.G)) + 0.85 * crps.G.para$sample.fun(length(T.F.G)))
-  y.sim.more.cons <- (0.25 * crps.F.para$sample.fun(length(T.F.G)) + 0.75 * crps.G.para$sample.fun(length(T.F.G)))
+  min.sample <- if (length(T.F.G) == 1) 20 else length(T.F.G)
+  y.sim.conf <- crps.G.para$sample.fun(min.sample)
+  y.sim.cons <- (0.15 * crps.F.para$sample.fun(min.sample) + 0.85 * crps.G.para$sample.fun(min.sample))
+  y.sim.more.cons <- (0.25 * crps.F.para$sample.fun(min.sample) + 0.75 * crps.G.para$sample.fun(min.sample))
   crps.conf <- crps.F.para$crps.fun.y.matrix(y.sim.conf) - crps.G.para$crps.fun.y.matrix(y.sim.conf)
   crps.cons <- crps.F.para$crps.fun.y.matrix(y.sim.cons) - crps.G.para$crps.fun.y.matrix(y.sim.cons)
   crps.more.cons <- crps.F.para$crps.fun.y.matrix(y.sim.more.cons) - crps.G.para$crps.fun.y.matrix(y.sim.more.cons)
 
-  if (is.matrix(crps.conf) && is.matrix(crps.cons) && is.matrix(crps.more.cons)) {
-    lambda.conf <- rowMeans(crps.conf / inf.crps) / rowMeans((crps.conf / inf.crps)^2)
-    lambda.cons <- rowMeans(crps.cons / inf.crps) / rowMeans((crps.cons / inf.crps)^2)
-    lambda.more.cons <- rowMeans(crps.more.cons / inf.crps) / rowMeans((crps.more.cons / inf.crps)^2)
-  } else {
-    lambda.conf <- (crps.conf / inf.crps) / ((crps.conf / inf.crps)^2)
-    lambda.cons <- (crps.cons / inf.crps) / ((crps.cons / inf.crps)^2)
-    lambda.more.cons <- (crps.more.cons / inf.crps) / ((crps.more.cons / inf.crps)^2)
-  }
+  lambda.conf <- rowMeans(crps.conf / inf.crps) / rowMeans((crps.conf / inf.crps)^2)
+  lambda.cons <- rowMeans(crps.cons / inf.crps) / rowMeans((crps.cons / inf.crps)^2)
+  lambda.more.cons <- rowMeans(crps.more.cons / inf.crps) / rowMeans((crps.more.cons / inf.crps)^2)
 
   lambda.conf[which(lambda.conf < 0.0001)] <- 0.0001
   lambda.conf[which(lambda.conf > 1)] <- 1
