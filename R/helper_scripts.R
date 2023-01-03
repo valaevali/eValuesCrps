@@ -232,11 +232,11 @@ crps_rf <- function(y, points, cdf) {
   mapply(crps0, y = y, cdf, w = w, x = points)
 }
 
-rcdf_rf <- function(points, cdf, n, lower = -10, upper = 10) {
+rcdf_rf <- function(points, cdf, n) {
   if (!is.vector(thresholds, "numeric"))
     stop("'thresholds' must be a numeric vector")
 
-  r <- runif(n, min = lower, max = upper)
+  r <- runif(n, min = min(points), max = max(points))
   cdf0 <- function(r) {
     # Evaluate CDF (stepfun) at thresholds
     stats::stepfun(x = points, y = c(0, cdf))(r)
