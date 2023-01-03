@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_scripts.R
 \name{forecast_input}
 \alias{forecast_input}
-\title{This is a helper function which returns the correct form for the forecast input for [sim_e_values()].}
+\title{Creates list for one input forecast of the form N(mu,sd)}
 \usage{
 forecast_input(mu, sd, w = NA)
 }

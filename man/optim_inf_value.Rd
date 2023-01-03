@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_scripts.R
 \name{optim_inf_value}
 \alias{optim_inf_value}
-\title{This method makes a gitter search for global minima}
+\title{Calculating Infimum of difference of two forecasts}
 \usage{
 optim_inf_value(f, start.points = 2, min.value = 1e-04, max.value = 1)
 }

@@ -2,9 +2,9 @@
 % Please edit documentation in R/helper_scripts.R
 \name{create_crps_fun}
 \alias{create_crps_fun}
-\title{This methods creates the additional functions from the input parameters for the calculations of lambda.}
+\title{Creates helper functions for different forecasts}
 \usage{
-create_crps_fun(n.obs = 200, mu = 0, sd = 1, w = 1, ...)
+create_crps_fun(n.obs = 200, mu = 0, sd = 1, w = 1, points = NA, cdf = NA, ...)
 }
 \arguments{
 \item{n.obs}{= 200, number of observations.}

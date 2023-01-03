@@ -109,9 +109,9 @@ e_value_calculate_lambda_for_grapa_betting <- function(T.F.G) {
 #' @param method = list("GRAPA", "lambda", "alternative", "alternative-mean"), is a list containing all the method names for calculating the different lambdas, only parameter used in this method is 'alternative-mean'
 #' @export
 e_value_calculate_lambda_for_alternative_betting <- function(T.F.G, crps.F.para, crps.G.para, inf.crps, method) {
-  y.sim.conf <- crps.G.para$rnorm(length(T.F.G))
-  y.sim.cons <- (0.15 * crps.F.para$rnorm(length(T.F.G)) + 0.85 * crps.G.para$rnorm(length(T.F.G)))
-  y.sim.more.cons <- (0.25 * crps.F.para$rnorm(length(T.F.G)) + 0.75 * crps.G.para$rnorm(length(T.F.G)))
+  y.sim.conf <- crps.G.para$sample.fun(length(T.F.G))
+  y.sim.cons <- (0.15 * crps.F.para$sample.fun(length(T.F.G)) + 0.85 * crps.G.para$sample.fun(length(T.F.G)))
+  y.sim.more.cons <- (0.25 * crps.F.para$sample.fun(length(T.F.G)) + 0.75 * crps.G.para$sample.fun(length(T.F.G)))
   crps.conf <- crps.F.para$crps.fun.y.matrix(y.sim.conf) - crps.G.para$crps.fun.y.matrix(y.sim.conf)
   crps.cons <- crps.F.para$crps.fun.y.matrix(y.sim.cons) - crps.G.para$crps.fun.y.matrix(y.sim.cons)
   crps.more.cons <- crps.F.para$crps.fun.y.matrix(y.sim.more.cons) - crps.G.para$crps.fun.y.matrix(y.sim.more.cons)
