@@ -173,11 +173,7 @@ p_value_t_test <- function(crps.F, crps.G, p.value.method = "t") {
   } else {
     sigma.n <- 1 / length(crps.F) * sum((crps.F - crps.G)^2)
     test.statistic <- sqrt(length(crps.F)) * ((crps.F - crps.G) / sigma.n)
-    if (is.numeric(crps.F) && is.numeric(crps.G)) {
-      p.value <- as.numeric(t.test(test.statistic, mu = 0, alternative = "greater")$p.value)
-    } else {
-      p.value <- as.numeric(t.test(test.statistic, alternative = "greater")$p.value)
-    }
+    p.value <- as.numeric(t.test(test.statistic, alternative = "greater")$p.value)
   }
   return(list("p.value" = p.value))
 }
