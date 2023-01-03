@@ -180,10 +180,10 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points = NA, cdf
     inf.crps.fun <- \(x, j) { scoringRules::crps_mixnorm(y = x, m = as.matrix(t(mu[j,]), nrow = 1), s = as.matrix(t(sd[1,])), w = as.matrix(t(w[1,]))) }
   } else if (!all(is.na(points)) && !all(is.na(cdf))) {
     method <- 'raw'
-    crps.fun <- \(y) { sapply(seq_along(y), \(i) {scoringRules::crps_sample(y = y[i], points = points, cdf = cdf) })}
+    crps.fun <- \(y) { sapply(seq_along(y), \(i) {scoringRules::crps_sample(y = y[i], dat = points, w = cdf) })}
     crps.fun.y.matrix <- \(y) { sapply(1:dim(y)[2], \(i) {scoringRules::crps_sample(y = y[, i], dat = matrix(rep(points, length(y[,i])), nrow=n.obs), w = matrix(rep(cdf, length(y[,i])), nrow = n.obs)) }) }
     sample.fun <- \(n) { matrix(rcdf_rf(points = points, cdf = cdf, n = n * n.obs), nrow = n.obs) }
-    inf.crps.fun <- \(x, j) { scoringRules::crps_sample(y = x, points = points[j], cdf = cdf[j]) }
+    inf.crps.fun <- \(x, j) { scoringRules::crps_sample(y = x, dat = points[j], w = cdf[j]) }
   } else {
     method <- 'norm'
     crps.fun <- \(y) { scoringRules::crps_norm(y = y, mean = mu, sd = sd) }
