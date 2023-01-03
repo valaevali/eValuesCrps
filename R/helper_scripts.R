@@ -233,9 +233,6 @@ crps_rf <- function(y, points, cdf) {
 }
 
 rcdf_rf <- function(points, cdf, n) {
-  if (!is.vector(thresholds, "numeric"))
-    stop("'thresholds' must be a numeric vector")
-
   r <- runif(n, min = min(points), max = max(points))
   cdf0 <- function(r) {
     # Evaluate CDF (stepfun) at thresholds
