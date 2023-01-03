@@ -178,10 +178,10 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points = NA, cdf
     crps.fun.y.matrix <- \(y) { sapply(1:dim(y)[2], \(i) { scoringRules::crps_mixnorm(y = y[, i], m = mu, s = sd, w = w) }) }
     sample.fun <- \(n) { matrix(rnorm(n * n.obs, mean = mu, sd = sd), nrow = n.obs) }
     inf.crps.fun <- \(x, j) { scoringRules::crps_mixnorm(y = x, m = as.matrix(t(mu[j,]), nrow = 1), s = as.matrix(t(sd[1,])), w = as.matrix(t(w[1,]))) }
-  } else if (!is.na(points) && !is.na(cdf)) {
+  } else if (!all(is.na(points)) && !all(is.na(cdf))) {
     method <- 'raw'
     crps.fun <- \(y) { crps_rf(y = y, points = points, cdf = cdf) }
-    crps.fun.y.matrix <- crps.fun
+    crps.fun.y.matrix <- \(y) { sapply(1:dim(y)[2], \(i) { crps_rf(y = y[, i], points = points, cdf = cdf) }) }
     sample.fun <- \(n) { matrix(rcdf_rf(points = points, cdf = cdf, n = n * n.obs), nrow = n.obs) }
     inf.crps.fun <- \(x, j) { crps_rf(y = x, points = points[j], cdf = cdf[j]) }
   } else {
@@ -232,6 +232,7 @@ crps_rf <- function(y, points, cdf) {
   mapply(crps0, y = y, cdf, w = w, x = points)
 }
 
+#' @export
 rcdf_rf <- function(points, cdf, n) {
   r <- runif(n, min = min(points), max = max(points))
   cdf0 <- function(r) {
