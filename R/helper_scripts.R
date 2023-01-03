@@ -128,10 +128,10 @@ check_input_crps_para <- function(crps.para, f.g) {
       stop(sprintf("One of the parameter for '%s' is a matrix, but not the others. Make sure all the parameters for one forecast have the same form", f.g))
     }
   } else {
-    if (!is.numeric(crps.para$points) && !is.vector(crps.para$points)) {
+    if (!is.numeric(crps.para$points) && !is.matrix(crps.para$points)) {
       stop(sprintf("The CRPS parameter 'points' should be a constant or a vector for %s.", f.g))
     }
-    if (!is.numeric(crps.para$cdf) && !is.vector(crps.para$cdf)) {
+    if (!is.numeric(crps.para$cdf) && !is.matrix(crps.para$cdf)) {
       stop(sprintf("The CRPS parameter 'cdf' should be a constant or a vector for %s.", f.g))
     }
   }
@@ -180,10 +180,10 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points = NA, cdf
     inf.crps.fun <- \(x, j) { scoringRules::crps_mixnorm(y = x, m = as.matrix(t(mu[j,]), nrow = 1), s = as.matrix(t(sd[1,])), w = as.matrix(t(w[1,]))) }
   } else if (!all(is.na(points)) && !all(is.na(cdf))) {
     method <- 'raw'
-    crps.fun <- \(y) { sapply(seq_along(y), \(i) {scoringRules::crps_sample(y = y[i], dat = points, w = cdf) })}
-    crps.fun.y.matrix <- \(y) { sapply(1:dim(y)[2], \(i) {scoringRules::crps_sample(y = y[, i], dat = matrix(rep(points, length(y[,i])), nrow=n.obs), w = matrix(rep(cdf, length(y[,i])), nrow = n.obs)) }) }
-    sample.fun <- \(n) { matrix(rcdf_rf(points = points, cdf = cdf, n = n * n.obs), nrow = n.obs) }
-    inf.crps.fun <- \(x, j) { scoringRules::crps_sample(y = x, dat = points[j], w = cdf[j]) }
+    crps.fun <- \(y) { sapply(seq_along(y), \(i) {scoringRules::crps_sample(y = y[i], dat = points[i][[1]], w = cdf[i][[1]]) })}
+    crps.fun.y.matrix <- \(y) {matrix( mapply(\(i, j) {scoringRules::crps_sample(y = y[j, i], dat = points[j][[1]], w = cdf[j][[1]]) }, 1:dim(y)[2], 1:dim(y)[1]), nrow = n.obs) }
+    sample.fun <- \(n) { matrix(sapply(1:n.obs, \(i) {rcdf_rf(points = points[i][[1]], cdf = cdf[i][[1]], n = n * n.obs) }), nrow = n.obs) }
+    inf.crps.fun <- \(x, j) { scoringRules::crps_sample(y = x, dat = points[j][[1]], w = cdf[j][[1]]) }
   } else {
     method <- 'norm'
     crps.fun <- \(y) { scoringRules::crps_norm(y = y, mean = mu, sd = sd) }
