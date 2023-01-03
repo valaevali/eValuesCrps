@@ -168,12 +168,16 @@ e_value_calculate_lambda_for_alternative_betting <- function(T.F.G, crps.F.para,
 #' @param p.value.method = one of ("t","dm"), "t" stand for t-test directly and dm stands for the dm.test method of the forecast package
 #' @export
 p_value_t_test <- function(crps.F, crps.G, p.value.method = "t") {
-  if (p.value.method == "dm") {
+  if (p.value.method == "dm" || !(is.numeric(crps.F) && is.numeric(crps.G))) {
     p.value <- as.numeric(forecast::dm.test(crps.F, crps.G, alternative = "greater")$p.value)
   } else {
-    sigma.n <- 1 / length(crps.F) * sum((crps.F - crps.G)^2) # TODO: not the independence violating approach!!!
+    sigma.n <- 1 / length(crps.F) * sum((crps.F - crps.G)^2)
     test.statistic <- sqrt(length(crps.F)) * ((crps.F - crps.G) / sigma.n)
-    p.value <- as.numeric(t.test(test.statistic, alternative = "greater")$p.value)
+    if (is.numeric(crps.F) && is.numeric(crps.G)) {
+      p.value <- as.numeric(t.test(test.statistic, mu = 0, alternative = "greaater")$p.value)
+    } else {
+      p.value <- as.numeric(t.test(test.statistic, alternative = "greater")$p.value)
+    }
   }
   return(list("p.value" = p.value))
 }
