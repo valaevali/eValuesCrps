@@ -116,9 +116,15 @@ e_value_calculate_lambda_for_alternative_betting <- function(T.F.G, crps.F.para,
   crps.cons <- crps.F.para$crps.fun.y.matrix(y.sim.cons) - crps.G.para$crps.fun.y.matrix(y.sim.cons)
   crps.more.cons <- crps.F.para$crps.fun.y.matrix(y.sim.more.cons) - crps.G.para$crps.fun.y.matrix(y.sim.more.cons)
 
-  lambda.conf <- rowMeans(crps.conf / inf.crps) / rowMeans((crps.conf / inf.crps)^2)
-  lambda.cons <- rowMeans(crps.cons / inf.crps) / rowMeans((crps.cons / inf.crps)^2)
-  lambda.more.cons <- rowMeans(crps.more.cons / inf.crps) / rowMeans((crps.more.cons / inf.crps)^2)
+  if (is.matrix(crps.conf) && is.matrix(crps.cons) && is.matrix(crps.more.cons)) {
+    lambda.conf <- rowMeans(crps.conf / inf.crps) / rowMeans((crps.conf / inf.crps)^2)
+    lambda.cons <- rowMeans(crps.cons / inf.crps) / rowMeans((crps.cons / inf.crps)^2)
+    lambda.more.cons <- rowMeans(crps.more.cons / inf.crps) / rowMeans((crps.more.cons / inf.crps)^2)
+  } else {
+    lambda.conf <- (crps.conf / inf.crps) / ((crps.conf / inf.crps)^2)
+    lambda.cons <- (crps.cons / inf.crps) / ((crps.cons / inf.crps)^2)
+    lambda.more.cons <- (crps.more.cons / inf.crps) / ((crps.more.cons / inf.crps)^2)
+  }
 
   lambda.conf[which(lambda.conf < 0.0001)] <- 0.0001
   lambda.conf[which(lambda.conf > 1)] <- 1
