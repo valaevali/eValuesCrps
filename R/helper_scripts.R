@@ -102,10 +102,9 @@ check_input_crps_para <- function(crps.para, f.g) {
     stop(sprintf("The CRPS parameter should not be empty for %s.", f.g))
   }
   if (!("mu" %in% names(crps.para)) &&
-    !("points" %in% names(crps.para)) &&
-    !("sd" %in% names(crps.para)) &&
-    !("cdf" %in% names(crps.para))) {
-    stop(sprintf("The CRPS parameter ('mu','sd') or ('points','cdf') should not be empty for %s.", f.g))
+    !("points.cdf" %in% names(crps.para)) &&
+    !("sd" %in% names(crps.para))) {
+    stop(sprintf("The CRPS parameter ('mu','sd') or ('points.cdf') should not be empty for %s.", f.g))
   }
   if (("mu" %in% names(crps.para)) && ("sd" %in% names(crps.para))) {
 
@@ -128,11 +127,8 @@ check_input_crps_para <- function(crps.para, f.g) {
       stop(sprintf("One of the parameter for '%s' is a matrix, but not the others. Make sure all the parameters for one forecast have the same form", f.g))
     }
   } else {
-    if (!is.numeric(crps.para$points) && !is.matrix(crps.para$points)) {
-      stop(sprintf("The CRPS parameter 'points' should be a constant or a vector for %s.", f.g))
-    }
-    if (!is.numeric(crps.para$cdf) && !is.matrix(crps.para$cdf)) {
-      stop(sprintf("The CRPS parameter 'cdf' should be a constant or a vector for %s.", f.g))
+    if (!is.numeric(crps.para$points.cdf) && !is.vector(crps.para$points.cdf) && all(is.na(crps.para$points.cdf$points)) && all(is.na(crps.para$points.cdf$cdf))) {
+      stop(sprintf("The CRPS parameter 'points.cdf' should be a matrix containing points and cdf for %s.", f.g))
     }
   }
 }
@@ -171,19 +167,19 @@ optim_inf_value <- function(f, start.points = 2, min.value = 0.0001, max.value =
 #'          rnorm is the function to calculate randomly normally distributed variables, inf.fun is the function to calculate the infimum for this forecast.
 #' @examples \dontrun{create_crps_fun(n.obs = 200, mu = rnorm(200), sd = 1)}
 #' @export
-create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points = NA, cdf = NA, ...) {
+create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points.cdf = NA, ...) {
   if (is.matrix(mu) || is.matrix(sd) || is.matrix(w)) {
     method <- 'mixnorm'
     crps.fun <- \(y) { scoringRules::crps_mixnorm(y = y, m = mu, s = sd, w = w) }
     crps.fun.y.matrix <- \(y) { sapply(1:dim(y)[2], \(i) { scoringRules::crps_mixnorm(y = y[, i], m = mu, s = sd, w = w) }) }
     sample.fun <- \(n) { matrix(rnorm(n * n.obs, mean = mu, sd = sd), nrow = n.obs) }
     inf.crps.fun <- \(x, j) { scoringRules::crps_mixnorm(y = x, m = as.matrix(t(mu[j,]), nrow = 1), s = as.matrix(t(sd[1,])), w = as.matrix(t(w[1,]))) }
-  } else if (!all(is.na(points)) && !all(is.na(cdf))) {
+  } else if (!all(is.na(points.cdf))) {
     method <- 'raw'
-    crps.fun <- \(y) { sapply(seq_along(y), \(i) {scoringRules::crps_sample(y = y[i], dat = points[i][[1]], w = cdf[i][[1]]) })}
-    crps.fun.y.matrix <- \(y) {matrix( mapply(\(i, j) {scoringRules::crps_sample(y = y[j, i], dat = points[j][[1]], w = cdf[j][[1]]) }, 1:dim(y)[2], 1:dim(y)[1]), nrow = n.obs) }
-    sample.fun <- \(n) { matrix(sapply(1:n.obs, \(i) {rcdf_rf(points = points[i][[1]], cdf = cdf[i][[1]], n = n * n.obs) }), nrow = n.obs) }
-    inf.crps.fun <- \(x, j) { scoringRules::crps_sample(y = x, dat = points[j][[1]], w = cdf[j][[1]]) }
+    crps.fun <- \(y) { sapply(seq_along(y), \(i) {scoringRules::crps_sample(y = y[i], dat = points.cdf[i][[1]]$points, w = points.cdf[i][[1]]$cdf) })}
+    crps.fun.y.matrix <- \(y) {matrix( mapply(\(i, j) {scoringRules::crps_sample(y = y[j, i], dat = points.cdf[j][[1]]$points, w = points.cdf[j][[1]]$cdf) }, 1:dim(y)[2], 1:dim(y)[1]), nrow = n.obs) }
+    sample.fun <- \(n) { matrix(sapply(1:n.obs, \(i) {rcdf_rf(points.cdf = points.cdf[i][[1]], n = n * n.obs) }), nrow = n.obs) }
+    inf.crps.fun <- \(x, j) { scoringRules::crps_sample(y = x, dat = points.cdf[j][[1]]$points, w = points.cdf[j][[1]]$cdf) }
   } else {
     method <- 'norm'
     crps.fun <- \(y) { scoringRules::crps_norm(y = y, mean = mu, sd = sd) }
@@ -205,11 +201,11 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points = NA, cdf
 }
 
 #' @export
-rcdf_rf <- function(points, cdf, n) {
-  r <- runif(n, min = min(points), max = max(points))
+rcdf_rf <- function(points.cdf, n) {
+  r <- runif(n, min = min(points.cdf$points), max = max(points.cdf$points))
   cdf0 <- function(r) {
     # Evaluate CDF (stepfun) at thresholds
-    stats::stepfun(x = points, y = c(0, cdf))(r)
+    stats::stepfun(x = points.cdf$points, y = c(0, points.cdf$cdf))(r)
   }
 
   sapply(r, cdf0)
