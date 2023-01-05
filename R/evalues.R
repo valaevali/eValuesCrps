@@ -26,12 +26,14 @@ e_value <- function(y, crps.F.para, crps.G.para, it = 1,
   crps.G <- crps.G.para$fun(y)
 
   # Calculating inf.crps
+  log_debug(paste0("Starting infimum caclulation at ", format(Sys.time(), format = "%Y-%m-%dT%H-%M-%S")))
   inf.crps <- get_inf_crps(crps.F.para, crps.G.para, n.obs)
 
   T.F.G <- (crps.F - crps.G) / inf.crps
   e.values <- list("crps.F.fun" = crps.F.para, "crps.F" = crps.F, "crps.G.fun" = crps.G.para, "crps.G" = crps.G,
                    "inf.crps" = inf.crps, "y" = y, "it" = it, "lambda" = lambda)
 
+  log_debug(paste0("Starting lambda caclulation at ", format(Sys.time(), format = "%Y-%m-%dT%H-%M-%S")))
   if ("lambda" %in% method) {
     # Lambda is fix
     e.value <- 1 + lambda * T.F.G
@@ -39,16 +41,19 @@ e_value <- function(y, crps.F.para, crps.G.para, it = 1,
     e.values <- base::append(e.values, list("e.value.lambda" = e.value, "e.value.lambda.prod" = e.value.prod))
   }
 
+  log_debug(paste0("Starting GRAPA caclulation at ", format(Sys.time(), format = "%Y-%m-%dT%H-%M-%S")))
   if ("GRAPA" %in% method) {
     # GRAPA
     e.values <- base::append(e.values, e_value_calculate_lambda_for_grapa_betting(T.F.G))
   }
 
+  log_debug(paste0("Starting alternative betting caclulation at ", format(Sys.time(), format = "%Y-%m-%dT%H-%M-%S")))
   if ("alternative" %in% method || "alternative-mean" %in% method) {
     # Alternative
     e.values <- base::append(e.values, e_value_calculate_lambda_for_alternative_betting(T.F.G, crps.F.para, crps.G.para, inf.crps, method))
   }
 
+  log_debug(paste0("Starting p-value caclulation at ", format(Sys.time(), format = "%Y-%m-%dT%H-%M-%S")))
   if (!is.na(p.value.method)) {
     # P-value
     e.values <- base::append(e.values, p_value_t_test(crps.F, crps.G, p.value.method))
