@@ -80,10 +80,8 @@ get_inf_crps <- function(crps.F.para, crps.G.para, n.obs) {
       return(abs(min(crps.F.para$mu - crps.G.para$mu)))
     }
   } else {
-    range <- c(-10, 10)
-    if (crps.F.para$method == "raw" || crps.G.para$method == "raw") range <- c(-50,50)
     return(abs(min(sapply((1:n.obs), \(i) { optim_inf_value(\(x) { crps.F.para$inf.fun(x, i) - crps.G.para$inf.fun(x, i) },
-                                                            min.value = range[1], max.value = range[2]) }))))
+                                                            min.value = -10, max.value = 10) }))))
   }
 }
 
