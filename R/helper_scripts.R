@@ -212,7 +212,7 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points.cdf = NA,
 }
 
 #' @export
-crps_rf_to_test <- function(y, points.cdf) {
+crps_rf <- function(y, points.cdf) {
   # Check input
   if (!is.vector(y, "numeric"))
     stop("obs must be a numeric vector")
