@@ -4,7 +4,7 @@
 \alias{create_crps_fun}
 \title{Creates helper functions for different forecasts}
 \usage{
-create_crps_fun(n.obs = 200, mu = 0, sd = 1, w = 1, points = NA, cdf = NA, ...)
+create_crps_fun(n.obs = 200, mu = 0, sd = 1, w = 1, points.cdf = NA, ...)
 }
 \arguments{
 \item{n.obs}{= 200, number of observations.}

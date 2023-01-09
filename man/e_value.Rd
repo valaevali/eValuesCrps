@@ -9,8 +9,8 @@ e_value(
   y,
   crps.F.para,
   crps.G.para,
-  it = 1,
-  method = list("GRAPA", "lambda", "alternative", "alternative-mean"),
+  idx = 1,
+  method = list("alt-cons"),
   lambda = 0.5,
   p.value.method = NA
 )
@@ -22,9 +22,9 @@ e_value(
 
 \item{crps.G.para}{of the form list("mu" = mu, "sd" = 1), here mu and sd do not have to be of the same form, but for mixnorm, they all have to have the same dimensions}
 
-\item{it}{= 1, is only importend when used with [sim_e_values()] and specifies which iteration it is}
+\item{idx}{= 1, this is an aditional parameter to idex the run of this call}
 
-\item{method}{= list("GRAPA", "lambda", "alternative", "alternative-mean"), is a list containing all the method names for calculating the different lambdas}
+\item{method}{= list("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the different lambdas}
 
 \item{lambda}{= 0.5, lambda entry for a fixed value}
 

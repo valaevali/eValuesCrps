@@ -21,7 +21,7 @@ e_value_calculate_lambda_for_alternative_betting(
 
 \item{inf.crps}{= infimum of crps.F - crps.G over y}
 
-\item{method}{= list("GRAPA", "lambda", "alternative", "alternative-mean"), is a list containing all the method names for calculating the different lambdas, only parameter used in this method is 'alternative-mean'}
+\item{method}{= list("alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the different lambdas}
 }
 \description{
 This method calculates the lambda with the alternative betting strategy
