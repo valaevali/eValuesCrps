@@ -131,6 +131,7 @@ e_value_calculate_lambda_for_alternative_betting <- function(T.F.G, crps.F.para,
                                                                                          crps.G.para = crps.G.para, inf.crps = inf.crps, suffix = "alt.more.cons", F.proportion = 0.25, G.proportion = 0.75))
   }
 
+  result <- result[!is.na(result)]
   return(result)
 }
 
