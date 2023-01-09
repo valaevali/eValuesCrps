@@ -216,7 +216,7 @@ crps_rf <- function(y, points.cdf) {
   # Check input
   if (!is.vector(y, "numeric"))
     stop("obs must be a numeric vector")
-  if (length(y) != 1 && length(y) != length(points.cdf$poinrs))
+  if (length(y) != 1 && length(y) != length(points.cdf$points))
     stop("y must have length 1 or the same length as the predictions")
 
   w <- diff(points.cdf$cdf)
