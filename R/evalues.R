@@ -221,8 +221,8 @@ next_k_e_values_for_point_cdfs <- function(e.value.run.before, new.y, new.crps.F
   p.value.method <- e.value.run.before$p.value.method
 
   y <- append(y, new.y)
-  crps.F.para <- append(crps.F.para$points.cdf, new.crps.F.para)
-  crps.G.para <- append(crps.G.para$points.cdf, new.crps.G.para)
+  crps.F.para <- list("points.cdf" = append(crps.F.para$points.cdf, new.crps.F.para))
+  crps.G.para <- list("points.cdf" = append(crps.G.para$points.cdf, new.crps.G.para))
 
   return(e_value(y = y, crps.F.para = crps.F.para, crps.G.para = crps.G.para, idx = idx,
                  method = method, lambda = lambda, p.value.method = p.value.method))
