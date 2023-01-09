@@ -32,7 +32,7 @@ e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
 
   # Calculating inf.crps
   logger::log_debug("Starting infimum caclulation")
-  inf.crps <- get_inf_crps(crps.F.para, crps.G.para, n.obs, k, old.run.e.value$inf.crps)
+  inf.crps <- get_inf_crps(crps.F.para, crps.G.para, n.obs, k, if (!is.na(old.run.e.value)) old.run.e.value$inf.crps else NA)
 
   T.F.G <- (crps.F - crps.G) / inf.crps
   e.values <- list("crps.F.fun" = crps.F.para, "crps.F" = crps.F, "crps.G.fun" = crps.G.para, "crps.G" = crps.G,
