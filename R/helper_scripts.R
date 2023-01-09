@@ -179,13 +179,13 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points.cdf = NA,
     inf.crps.fun <- \(x, j) { scoringRules::crps_mixnorm(y = x, m = as.matrix(t(mu[j,]), nrow = 1), s = as.matrix(t(sd[1,])), w = as.matrix(t(w[1,]))) }
   } else if (!all(is.na(points.cdf))) {
     method <- 'raw'
-    crps.fun <- \(y) { sapply(seq_along(y), \(i) { crps_rf(y = y[i], points = points.cdf[i][[1]]$points, cdf = points.cdf[i][[1]]$cdf) }) }
+    crps.fun <- \(y) { sapply(seq_along(y), \(i) { crps_rf(y = y[i], points.cdf = points.cdf[i][[1]]) }) }
 
     crps.fun.y.matrix <- \(y) {
       result <- matrix(nrow = dim(y)[1], ncol = dim(y)[2])
       for (k in 1:dim(y)[1]) {
         for (l in 1:dim(y)[2]) {
-          fun.y <- \(i, j) { crps_rf(y = y[i, j], points = points.cdf[j][[1]]$points, cdf = points.cdf[j][[1]]$cdf) }
+          fun.y <- \(i, j) { crps_rf(y = y[i, j], points.cdf = points.cdf[j][[1]]) }
           result[k, l] <- fun.y(k, l)
         }
       }
@@ -193,7 +193,7 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points.cdf = NA,
     }
 
     sample.fun <- \(n) { sapply(seq_along(points.cdf), \(i) { rcdf_rf(points.cdf = points.cdf[i][[1]], n = n) }) }
-    inf.crps.fun <- \(x, j) { crps_rf(y = x, points = points.cdf[j][[1]]$points, cdf = points.cdf[j][[1]]$cdf) }
+    inf.crps.fun <- \(x, j) { crps_rf(y = x, points.cdf = points.cdf[j][[1]]) }
   } else {
     method <- 'norm'
     crps.fun <- \(y) { scoringRules::crps_norm(y = y, mean = mu, sd = sd) }
@@ -215,16 +215,16 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points.cdf = NA,
 }
 
 #' @export
-crps_rf <- function(y, points, cdf) {
+crps_rf <- function(y, points.cdf) {
   # Check input
   if (!is.vector(y, "numeric"))
     stop("obs must be a numeric vector")
-  if (length(y) != 1 && length(y) != length(predictions))
+  if (length(y) != 1 && length(y) != length(points.cdf$poinrs))
     stop("y must have length 1 or the same length as the predictions")
 
-  w <- diff(cdf)
-  a <- cdf + 0.5 * w
-  crps0 <- function(y) 2 * sum(cdf * ((y < points) - a) * (points - y))
+  w <- diff(points.cdf$cdf)
+  a <- points.cdf$cdf + 0.5 * w
+  crps0 <- function(y) 2 * sum(points.cdf$cdf * ((y < points.cdf$points) - a) * (points.cdf$points - y))
   sapply(y, crps0)
 }
 
