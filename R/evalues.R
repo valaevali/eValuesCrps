@@ -151,18 +151,18 @@ e_value_calculate_lambda_for_alternative_betting_each <- function(T.F.G, crps.F.
   min.sample <- if (length(T.F.G) == 1) 20 else if (length(T.F.G) > 50) 50 else length(T.F.G)
 
   if (!is.na(k) & !is.na(crps.alt.old)) {
-    y.sim <- (F.proportion * sapply(k:length(crps.F.para$points.cdf), crps.F.para$sample.fun(min.sample))) +
+    y.sim <- (F.proportion * sapply(k:length(crps.F.para$points.cdf), \(i) {crps.F.para$sample.fun(min.sample, i)})) +
       G.proportion * sapply(k:length(crps.G.para$points.cdf), crps.G.para$sample.fun(min.sample))
     crps.alt.new <- crps.F.para$crps.fun.y.matrix(y.sim) - crps.G.para$crps.fun.y.matrix(y.sim)
     crps.alt <- c(crps.alt.old, crps.alt.new)
   } else {
     if (crps.F.para$method == 'raw') {
-      y.sim.F <- sapply(seq_along(crps.F.para$points.cdf), crps.F.para$sample.fun(min.sample))
+      y.sim.F <- sapply(seq_along(crps.F.para$points.cdf), \(i) {crps.F.para$sample.fun(min.sample, i)})
     } else {
       y.sim.F <- crps.F.para$sample.fun(min.sample)
     }
     if (crps.G.para$method == 'raw') {
-      y.sim.G <- sapply(seq_along(crps.G.para$points.cdf), crps.G.para$sample.fun(min.sample))
+      y.sim.G <- sapply(seq_along(crps.G.para$points.cdf), \(i) {crps.G.para$sample.fun(min.sample, i)})
     } else {
       y.sim.G <- crps.G.para$sample.fun(min.sample)
     }

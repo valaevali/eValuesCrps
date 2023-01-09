@@ -189,7 +189,7 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points.cdf = NA,
       return(result)
     }
 
-    sample.fun <- \(n) { sapply(seq_along(points.cdf), \(i) { rcdf_rf(points.cdf = points.cdf[i][[1]], n = n) }) }
+    sample.fun <- \(n, j) { rcdf_rf(points.cdf = points.cdf[j][[1]], n = n) }
     inf.crps.fun <- \(x, j) { crps_rf(y = x, points.cdf = points.cdf[j][[1]]) }
   } else {
     method <- 'norm'
