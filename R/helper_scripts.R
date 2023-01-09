@@ -212,16 +212,16 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points.cdf = NA,
 }
 
 #' @export
-crps_rf <- function(y, points.cdf) {
+crps_rf_to_test <- function(y, points.cdf) {
   # Check input
   if (!is.vector(y, "numeric"))
     stop("obs must be a numeric vector")
   if (length(y) != 1 && length(y) != length(points.cdf$points))
     stop("y must have length 1 or the same length as the predictions")
 
-  w <- diff(points.cdf$cdf)
-  a <- c(0, points.cdf$cdf) + 0.5 * w
-  crps0 <- function(y) 2 * sum(c(0, points.cdf$cdf) * ((y < points.cdf$points) - a) * (points.cdf$points - y))
+  w <- c(0, diff(points.cdf$cdf))
+  a <- points.cdf$cdf + 0.5 * w
+  crps0 <- function(y) 2 * sum(points.cdf$cdf * ((y < points.cdf$points) - a) * (points.cdf$points - y))
   sapply(y, crps0)
 }
 
