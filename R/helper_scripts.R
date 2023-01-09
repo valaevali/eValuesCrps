@@ -57,7 +57,7 @@ check_input_simulation <- function(n.it, n.obs, loosing.power.only, method, lamb
 }
 
 #' @export
-check_input <- function(y, crps.F.para, crps.G.para, it, method, lambda, p.value.method) {
+check_input <- function(y, crps.F.para, crps.G.para, idx, method, lambda, p.value.method) {
   if (all(is.na(y)) || !is.vector(y)) {
     stop("The parameter y had to be a vector.")
   }
@@ -65,14 +65,11 @@ check_input <- function(y, crps.F.para, crps.G.para, it, method, lambda, p.value
   check_input_crps_para(crps.F.para, "F")
   check_input_crps_para(crps.G.para, "G")
 
-  if (is.na(it)) {
+  if (is.na(idx)) {
     warning("Setting iteration to '1'")
-    it <- 1
+    idx <- 1
   }
-  if (!("GRAPA" %in% method) &&
-    !("lambda" %in% method) &&
-    !("alternative" %in% method) &&
-    !("alternative-mean" %in% method)) {
+  if (!(any(c("lambda", "GRAPA", "alt-conf", "alt-cons", "alt-more-cons", "alt-mean") %in% method))) {
     warning("Parameter 'method' did not match any defined methods, setting to default 'lambda' for a fixed value")
     method <- list("lambda")
   }
@@ -93,7 +90,7 @@ check_input <- function(y, crps.F.para, crps.G.para, it, method, lambda, p.value
     p.value.method <- "t"
   }
 
-  return(list("it" = it, "method" = method, "lambda" = lambda, "p.value.method" = p.value.method))
+  return(list("idx" = idx, "method" = method, "lambda" = lambda, "p.value.method" = p.value.method))
 }
 
 #' @export

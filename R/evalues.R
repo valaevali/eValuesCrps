@@ -5,15 +5,15 @@
 #' @param mu is the mean parameter for y ~ N(mu, 1)
 #' @param crps.F.para of the form list("mu" = mu, "sd" = 1), here mu and sd do not have to be of the same form, but for mixnorm, they all have to have the same dimensions
 #' @param crps.G.para of the form list("mu" = mu, "sd" = 1), here mu and sd do not have to be of the same form, but for mixnorm, they all have to have the same dimensions
-#' @param it = 1, is only importend when used with [sim_e_values()] and specifies which iteration it is
-#' @param method = list("GRAPA", "lambda", "alternative", "alternative-mean"), is a list containing all the method names for calculating the different lambdas
+#' @param idx = 1, this is an aditional parameter to idex the run of this call
+#' @param method = list("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons", "alt-mean"), is a list containing all the method names for calculating the different lambdas
 #' @param lambda = 0.5, lambda entry for a fixed value
 #' @param p.value.method = NA, can be "t" for t-test and "dm" for dm.test of the package forecast
 #' @export
-e_value <- function(y, crps.F.para, crps.G.para, it = 1,
-                    method = list("GRAPA", "lambda", "alternative", "alternative-mean"), lambda = 0.5, p.value.method = NA) {
-  checkedInput <- check_input(y, crps.F.para, crps.G.para, it, method, lambda, p.value.method)
-  it <- checkedInput$it
+e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
+                    method = list("alt-cons"), lambda = 0.5, p.value.method = NA) {
+  checkedInput <- check_input(y, crps.F.para, crps.G.para, idx, method, lambda, p.value.method)
+  idx <- checkedInput$idx
   method <- checkedInput$method
   lambda <- checkedInput$lambda
   p.value.method <- checkedInput$p.value.method
@@ -31,13 +31,13 @@ e_value <- function(y, crps.F.para, crps.G.para, it = 1,
 
   T.F.G <- (crps.F - crps.G) / inf.crps
   e.values <- list("crps.F.fun" = crps.F.para, "crps.F" = crps.F, "crps.G.fun" = crps.G.para, "crps.G" = crps.G,
-                   "inf.crps" = inf.crps, "y" = y, "it" = it, "lambda" = lambda)
+                   "inf.crps" = inf.crps, "y" = y, "idx" = idx, "lambda" = lambda)
 
   logger::log_debug("Starting lambda caclulation")
   if ("lambda" %in% method) {
     # Lambda is fix
     e.value <- 1 + lambda * T.F.G
-    e.value.prod <- 1 / max(cumprod(e.value))
+    e.value.prod <- max(cumprod(e.value))
     e.values <- base::append(e.values, list("e.value.lambda" = e.value, "e.value.lambda.prod" = e.value.prod))
   }
 
@@ -48,7 +48,7 @@ e_value <- function(y, crps.F.para, crps.G.para, it = 1,
   }
 
   logger::log_debug("Starting alternative betting caclulation")
-  if ("alternative" %in% method || "alternative-mean" %in% method) {
+  if (any(c("alt-conf", "alt-cons", "alt-more-cons") %in% method)) {
     # Alternative
     e.values <- base::append(e.values, e_value_calculate_lambda_for_alternative_betting(T.F.G, crps.F.para, crps.G.para, inf.crps, method))
   }
@@ -101,7 +101,7 @@ e_value_calculate_lambda_for_grapa_betting <- function(T.F.G) {
   lambda.grapa[which(lambda.grapa > 1)] <- 1
 
   e.value.grapa <- 1 + lambda.grapa * T.F.G
-  e.value.prod.grapa <- 1 / max(cumprod(e.value.grapa))
+  e.value.prod.grapa <- max(cumprod(e.value.grapa))
 
   return(list("e.value.grapa" = e.value.grapa, "e.value.grapa.prod" = e.value.prod.grapa, "lambda.grapa" = lambda.grapa))
 }
@@ -111,60 +111,45 @@ e_value_calculate_lambda_for_grapa_betting <- function(T.F.G) {
 #' @param crps.F.para of the form list("mu" = mu, "sd" = 1)
 #' @param crps.G.para of the form list("mu" = -mu, "sd" = 1)
 #' @param inf.crps = infimum of crps.F - crps.G over y
-#' @param method = list("GRAPA", "lambda", "alternative", "alternative-mean"), is a list containing all the method names for calculating the different lambdas, only parameter used in this method is 'alternative-mean'
+#' @param method = list("alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the different lambdas
 #' @export
 e_value_calculate_lambda_for_alternative_betting <- function(T.F.G, crps.F.para, crps.G.para, inf.crps, method) {
-  min.sample <- if (length(T.F.G) == 1) 20 else length(T.F.G)
-  y.sim.conf <- crps.G.para$sample.fun(min.sample)
-  y.sim.cons <- (0.15 * crps.F.para$sample.fun(min.sample) + 0.85 * crps.G.para$sample.fun(min.sample))
-  y.sim.more.cons <- (0.25 * crps.F.para$sample.fun(min.sample) + 0.75 * crps.G.para$sample.fun(min.sample))
-  crps.conf <- crps.F.para$crps.fun.y.matrix(y.sim.conf) - crps.G.para$crps.fun.y.matrix(y.sim.conf)
-  crps.cons <- crps.F.para$crps.fun.y.matrix(y.sim.cons) - crps.G.para$crps.fun.y.matrix(y.sim.cons)
-  crps.more.cons <- crps.F.para$crps.fun.y.matrix(y.sim.more.cons) - crps.G.para$crps.fun.y.matrix(y.sim.more.cons)
+  result <- NA
 
-  if (is.vector(crps.conf) && is.vector(crps.cons) && is.vector(crps.more.cons)) {
-    lambda.conf <- mean(crps.conf / inf.crps) / mean((crps.conf / inf.crps)^2)
-    lambda.cons <- mean(crps.cons / inf.crps) / mean((crps.cons / inf.crps)^2)
-    lambda.more.cons <- mean(crps.more.cons / inf.crps) / mean((crps.more.cons / inf.crps)^2)
-  } else {
-    lambda.conf <- rowMeans(crps.conf / inf.crps) / rowMeans((crps.conf / inf.crps)^2)
-    lambda.cons <- rowMeans(crps.cons / inf.crps) / rowMeans((crps.cons / inf.crps)^2)
-    lambda.more.cons <- rowMeans(crps.more.cons / inf.crps) / rowMeans((crps.more.cons / inf.crps)^2)
+  if ("alt-conf" %in% method) {
+    result <- base::append(result, e_value_calculate_lambda_for_alternative_betting_each(T.F.G = T.F.G, crps.F.para = crps.F.para,
+                                                                                         crps.G.para = crps.G.para, inf.crps = inf.crps, suffix = "alt.conf", F.proportion = 0, G.proportion = 1))
   }
 
-  lambda.conf[which(lambda.conf < 0.0001)] <- 0.0001
-  lambda.conf[which(lambda.conf > 1)] <- 1
+  if ("alt-cons" %in% method) {
+    result <- base::append(result, e_value_calculate_lambda_for_alternative_betting_each(T.F.G = T.F.G, crps.F.para = crps.F.para,
+                                                                                         crps.G.para = crps.G.para, inf.crps = inf.crps, suffix = "alt.cons", F.proportion = 0.15, G.proportion = 0.85))
+  }
 
-  lambda.more.cons[which(lambda.more.cons < 0.0001)] <- 0.0001
-  lambda.more.cons[which(lambda.more.cons > 1)] <- 1
-
-  lambda.cons[which(lambda.cons < 0.0001)] <- 0.0001
-  lambda.cons[which(lambda.cons > 1)] <- 1
-
-  e.value.alt.conf <- 1 + lambda.conf * T.F.G
-  e.value.alt.conf.prod <- 1 / max(cumprod(e.value.alt.conf))
-  e.value.alt.more.cons <- 1 + lambda.more.cons * T.F.G
-  e.value.alt.more.cons.prod <- 1 / max(cumprod(e.value.alt.more.cons))
-  e.value.alt.cons <- 1 + lambda.cons * T.F.G
-  e.value.alt.cons.prod <- 1 / max(cumprod(e.value.alt.cons))
-
-  result <- list("e.value.alt.conf" = e.value.alt.conf, "e.value.alt.conf.prod" = e.value.alt.conf.prod, "lambda.alt.conf" = lambda.conf,
-                 "e.value.alt.more.cons" = e.value.alt.more.cons, "e.value.alt.more.cons.prod" = e.value.alt.more.cons.prod, "lambda.alt.more.cons" = lambda.more.cons,
-                 "e.value.alt.cons" = e.value.alt.cons, "e.value.alt.cons.prod" = e.value.alt.cons.prod, "lambda.alt.cons" = lambda.cons)
-
-  if ("alternative-mean" %in% method) {
-    e.value.alt.mean.cons.more.conf <- (e.value.alt.conf + e.value.alt.more.cons) / 2
-    e.value.alt.mean.cons.more.conf.prod <- 1 / max(cumprod(e.value.alt.mean.cons.more.conf))
-    e.value.alt.mean <- (e.value.alt.conf +
-      e.value.alt.more.cons +
-      e.value.alt.cons) / 3
-    e.value.alt.mean.prod <- 1 / max(cumprod(e.value.alt.mean))
-    result <- base::append(result,
-                           list("e.value.alt.mean.cons.more.conf" = e.value.alt.mean.cons.more.conf, "e.value.alt.mean.cons.more.conf.prod" = e.value.alt.mean.cons.more.conf.prod,
-                                "e.value.alt.mean" = e.value.alt.mean, "e.value.alt.mean.prod" = e.value.alt.mean.prod))
+  if ("alt-more-cons") {
+    result <- base::append(result, e_value_calculate_lambda_for_alternative_betting_each(T.F.G = T.F.G, crps.F.para = crps.F.para,
+                                                                                         crps.G.para = crps.G.para, inf.crps = inf.crps, suffix = "alt.more.cons", F.proportion = 0.25, G.proportion = 0.75))
   }
 
   return(result)
+}
+
+e_value_calculate_lambda_for_alternative_betting_each <- function(T.F.G, crps.F.para, crps.G.para, inf.crps, suffix, F.proportion, G.proportion) {
+  min.sample <- if (length(T.F.G) == 1) 20 else length(T.F.G)
+
+  y.sim <- (F.proportion * crps.F.para$sample.fun(min.sample) + G.proportion * crps.G.para$sample.fun(min.sample))
+  crps.alt <- crps.F.para$crps.fun.y.matrix(y.sim) - crps.G.para$crps.fun.y.matrix(y.sim)
+  if (is.vector(crps.alt)) {
+    lambda.alt <- mean(crps.alt / inf.crps) / mean((crps.alt / inf.crps)^2)
+  } else {
+    lambda.alt <- rowMeans(crps.alt / inf.crps) / rowMeans((crps.alt / inf.crps)^2)
+  }
+  lambda.alt[which(lambda.alt < 0.0001)] <- 0.0001
+  lambda.alt[which(lambda.alt > 1)] <- 1
+
+  e.value.alt <- 1 + lambda.alt * T.F.G
+  e.value.alt.prod <- max(cumprod(e.value.alt))
+  result <- base::append(result, setNames(list(e.value.alt, e.value.alt.prod, lambda.alt), c(paste0("e.value.", suffix), paste0("e.value.", suffix, ".prod"), paste0("lambda.", suffix))))
 }
 
 #' This method calculates the Diebold-Mariano t-test
