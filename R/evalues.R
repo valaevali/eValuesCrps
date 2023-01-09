@@ -36,7 +36,7 @@ e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
 
   T.F.G <- (crps.F - crps.G) / inf.crps
   e.values <- list("crps.F.fun" = crps.F.para, "crps.F" = crps.F, "crps.G.fun" = crps.G.para, "crps.G" = crps.G,
-                   "inf.crps" = inf.crps, "y" = y, "idx" = idx, "lambda" = lambda)
+                   "inf.crps" = inf.crps, "y" = y, "idx" = idx, "lambda" = lambda, "method" = method, "p.value.method" = p.value.method)
 
   logger::log_debug("Starting lambda caclulation")
   if ("lambda" %in% method) {
