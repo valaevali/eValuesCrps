@@ -220,7 +220,7 @@ next_k_e_values_for_point_cdfs <- function(e.value.run.before, new.y, new.crps.F
   lambda <- e.value.run.before$lambda
   p.value.method <- e.value.run.before$p.value.method
 
-  y <- append(y, next.obs)
+  y <- append(y, new.y)
   crps.F.para <- append(crps.F.para$points.cdf, new.crps.F.para)
   crps.G.para <- append(crps.G.para$points.cdf, new.crps.G.para)
 
