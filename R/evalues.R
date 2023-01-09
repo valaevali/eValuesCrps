@@ -150,7 +150,8 @@ e_value_calculate_lambda_for_alternative_betting_each <- function(T.F.G, crps.F.
 
   e.value.alt <- 1 + lambda.alt * T.F.G
   e.value.alt.prod <- max(cumprod(e.value.alt))
-  return(setNames(list(e.value.alt, e.value.alt.prod, lambda.alt), c(paste0("e.value.", suffix), paste0("e.value.", suffix, ".prod"), paste0("lambda.", suffix))))
+  result <- setNames(list(e.value.alt, e.value.alt.prod, lambda.alt), c(paste0("e.value.", suffix), paste0("e.value.", suffix, ".prod"), paste0("lambda.", suffix)))
+  return(result)
 }
 
 #' This method calculates the Diebold-Mariano t-test
