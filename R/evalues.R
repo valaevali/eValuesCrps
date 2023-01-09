@@ -213,12 +213,12 @@ next_k_e_values_for_point_cdfs <- function(e.value.run.before, new.y, new.crps.F
     stop("next.y cannot be NA, please provide next.obs=?")
   }
 
-  y <- e.values.method.result$y
-  crps.F.para <- e.values.method.result$crps.F.para
-  crps.G.para <- e.values.method.result$crps.G.para
-  method <- e.values.method.result$method
-  lambda <- e.values.method.result$lambda
-  p.value.method <- e.values.method.result$p.value.method
+  y <- e.value.run.before$y
+  crps.F.para <- e.value.run.before$crps.F.para
+  crps.G.para <- e.value.run.before$crps.G.para
+  method <- e.value.run.before$method
+  lambda <- e.value.run.before$lambda
+  p.value.method <- e.value.run.before$p.value.method
 
   y <- append(y, next.obs)
   crps.F.para <- append(crps.F.para$points.cdf, new.crps.F.para)
