@@ -126,7 +126,7 @@ e_value_calculate_lambda_for_alternative_betting <- function(T.F.G, crps.F.para,
                                                                                          crps.G.para = crps.G.para, inf.crps = inf.crps, suffix = "alt.cons", F.proportion = 0.15, G.proportion = 0.85))
   }
 
-  if ("alt-more-cons") {
+  if ("alt-more-cons" %in% method) {
     result <- base::append(result, e_value_calculate_lambda_for_alternative_betting_each(T.F.G = T.F.G, crps.F.para = crps.F.para,
                                                                                          crps.G.para = crps.G.para, inf.crps = inf.crps, suffix = "alt.more.cons", F.proportion = 0.25, G.proportion = 0.75))
   }
