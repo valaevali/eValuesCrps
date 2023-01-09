@@ -9,7 +9,9 @@ e_value_calculate_lambda_for_alternative_betting(
   crps.F.para,
   crps.G.para,
   inf.crps,
-  method
+  method,
+  input,
+  k
 )
 }
 \arguments{

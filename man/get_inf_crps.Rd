@@ -4,7 +4,7 @@
 \alias{get_inf_crps}
 \title{This method calculates the infimum of crps.F - crps.G.}
 \usage{
-get_inf_crps(crps.F.para, crps.G.para, n.obs)
+get_inf_crps(crps.F.para, crps.G.para, n.obs, k = NA, old.inf = NA)
 }
 \arguments{
 \item{crps.F.para}{of the form list("mu" = mu, "sd" = 1)}

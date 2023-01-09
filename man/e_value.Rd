@@ -12,7 +12,9 @@ e_value(
   idx = 1,
   method = list("alt-cons"),
   lambda = 0.5,
-  p.value.method = NA
+  p.value.method = NA,
+  old.run.e.value = NA,
+  k = NA
 )
 }
 \arguments{
