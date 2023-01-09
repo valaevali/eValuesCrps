@@ -220,8 +220,8 @@ crps_rf <- function(y, points.cdf) {
     stop("y must have length 1 or the same length as the predictions")
 
   w <- diff(points.cdf$cdf)
-  a <- points.cdf$cdf + 0.5 * w
-  crps0 <- function(y) 2 * sum(points.cdf$cdf * ((y < points.cdf$points) - a) * (points.cdf$points - y))
+  a <- c(0, points.cdf$cdf) + 0.5 * w
+  crps0 <- function(y) 2 * sum(c(0, points.cdf$cdf) * ((y < points.cdf$points) - a) * (points.cdf$points - y))
   sapply(y, crps0)
 }
 
