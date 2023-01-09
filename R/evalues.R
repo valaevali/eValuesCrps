@@ -6,7 +6,7 @@
 #' @param crps.F.para of the form list("mu" = mu, "sd" = 1), here mu and sd do not have to be of the same form, but for mixnorm, they all have to have the same dimensions
 #' @param crps.G.para of the form list("mu" = mu, "sd" = 1), here mu and sd do not have to be of the same form, but for mixnorm, they all have to have the same dimensions
 #' @param idx = 1, this is an aditional parameter to idex the run of this call
-#' @param method = list("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons", "alt-mean"), is a list containing all the method names for calculating the different lambdas
+#' @param method = list("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the different lambdas
 #' @param lambda = 0.5, lambda entry for a fixed value
 #' @param p.value.method = NA, can be "t" for t-test and "dm" for dm.test of the package forecast
 #' @export
