@@ -90,7 +90,7 @@ get_inf_crps <- function(crps.F.para, crps.G.para, n.obs, k = NA, old.inf = NA) 
                                             min.value = -10, max.value = 10) }
 
     if (!is.na(k) & !is.na(old.inf)) {
-      new.inf <- sapply(((n.obs - k):n.obs), optim.inf.fun)
+      new.inf <- for(i in (n.obs - k + 1):n.obs) optim.inf.fun(i)
       return(abs(min(c(old.inf, new.inf))))
     }
     return(abs(min(sapply((1:n.obs), optim.inf.fun))))
