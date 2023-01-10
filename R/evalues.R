@@ -166,8 +166,8 @@ e_value_calculate_lambda_for_alternative_betting_each <- function(T.F.G, crps.F.
   min.sample <- if (length(T.F.G) == 1) 20 else if (length(T.F.G) > 50) 50 else length(T.F.G)
 
   if (!is.na(k) & !all(is.na(crps.alt.old))) {
-    y.sim <- (F.proportion * sapply(k:length(crps.F.para$points.cdf), \(i) { crps.F.para$sample.fun(min.sample, i) })) +
-      G.proportion * sapply(k:length(crps.G.para$points.cdf), \(i) { crps.G.para$sample.fun(min.sample, i)})
+    y.sim <- (F.proportion * sapply((length(crps.F.para$points.cdf) - k + 1):length(crps.F.para$points.cdf), \(i) { crps.F.para$sample.fun(min.sample, i) })) +
+      G.proportion * sapply((length(crps.F.para$points.cdf) - k + 1):length(crps.G.para$points.cdf), \(i) { crps.G.para$sample.fun(min.sample, i) })
     crps.alt.new <- crps.F.para$crps.fun.y.matrix(y.sim) - crps.G.para$crps.fun.y.matrix(y.sim)
     crps.alt <- c(crps.alt.old, crps.alt.new)
   } else {
