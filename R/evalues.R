@@ -182,7 +182,7 @@ e_value_calculate_lambda_for_alternative_betting_each <- function(T.F.G, crps.F.
       y.sim.G <- crps.G.para$sample.fun(min.sample)
     }
 
-    y.sim <- (F.proportion * y.sim.F + G.proportion * y.sim.G)
+    y.sim <- t((F.proportion * y.sim.F + G.proportion * y.sim.G))
     crps.alt <- crps.F.para$crps.fun.y.matrix(y.sim) - crps.G.para$crps.fun.y.matrix(y.sim)
   }
 
