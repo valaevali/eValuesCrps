@@ -23,8 +23,8 @@ e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
   n.obs <- length(y)
 
   if (!is.na(k)) {
-    crps.F <- c(old.run.e.value$crps.F, crps.F.para$fun(y[(n.obs - k):n.obs]))
-    crps.G <- c(old.run.e.value$crps.G, crps.G.para$fun(y[(n.obs - k):n.obs]))
+    crps.F <- c(old.run.e.value$crps.F, crps.F.para$fun(y[(n.obs - k + 1):n.obs]))
+    crps.G <- c(old.run.e.value$crps.G, crps.G.para$fun(y[(n.obs - k + 1):n.obs]))
   } else {
     crps.F <- crps.F.para$fun(y)
     crps.G <- crps.G.para$fun(y)
