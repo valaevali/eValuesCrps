@@ -32,7 +32,7 @@ e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
 
   # Calculating inf.crps
   logger::log_debug("Starting infimum caclulation")
-  inf.crps <- get_inf_crps(crps.F.para, crps.G.para, n.obs, k, if (!is.na(old.run.e.value)) old.run.e.value$inf.crps else NA)
+  inf.crps <- get_inf_crps(crps.F.para, crps.G.para, n.obs, k, if (!all(is.na(old.run.e.value))) old.run.e.value$inf.crps else NA)
 
   T.F.G <- (crps.F - crps.G) / inf.crps
   e.values <- list("crps.F.fun" = crps.F.para, "crps.F" = crps.F, "crps.G.fun" = crps.G.para, "crps.G" = crps.G,
@@ -129,18 +129,33 @@ e_value_calculate_lambda_for_alternative_betting <- function(T.F.G, crps.F.para,
   result <- NA
 
   if ("alt-conf" %in% method) {
-    result <- base::append(result, e_value_calculate_lambda_for_alternative_betting_each(T.F.G = T.F.G, crps.F.para = crps.F.para,
-                                                                                         crps.G.para = crps.G.para, inf.crps = inf.crps, suffix = "alt.conf", F.proportion = 0, G.proportion = 1, crps.alt.old = if (!is.na(input)) input$crps.alt.conf else NA, k = k))
+    result <-
+      base::append(result,
+                   e_value_calculate_lambda_for_alternative_betting_each(T.F.G = T.F.G, crps.F.para = crps.F.para,
+                                                                         crps.G.para = crps.G.para, inf.crps = inf.crps,
+                                                                         suffix = "alt.conf", F.proportion = 0,
+                                                                         G.proportion = 1,
+                                                                         crps.alt.old = if (!all(is.na(input))) input$crps.alt.conf else NA, k = k))
   }
 
   if ("alt-cons" %in% method) {
-    result <- base::append(result, e_value_calculate_lambda_for_alternative_betting_each(T.F.G = T.F.G, crps.F.para = crps.F.para,
-                                                                                         crps.G.para = crps.G.para, inf.crps = inf.crps, suffix = "alt.cons", F.proportion = 0.15, G.proportion = 0.85, crps.alt.old = if (!is.na(input)) input$crps.alt.cons else NA, k = k))
+    result <-
+      base::append(result,
+                   e_value_calculate_lambda_for_alternative_betting_each(T.F.G = T.F.G, crps.F.para = crps.F.para,
+                                                                         crps.G.para = crps.G.para, inf.crps = inf.crps,
+                                                                         suffix = "alt.cons", F.proportion = 0.15,
+                                                                         G.proportion = 0.85,
+                                                                         crps.alt.old = if (!all(is.na(input))) input$crps.alt.cons else NA, k = k))
   }
 
   if ("alt-more-cons" %in% method) {
-    result <- base::append(result, e_value_calculate_lambda_for_alternative_betting_each(T.F.G = T.F.G, crps.F.para = crps.F.para,
-                                                                                         crps.G.para = crps.G.para, inf.crps = inf.crps, suffix = "alt.more.cons", F.proportion = 0.25, G.proportion = 0.75, crps.alt.old = if (!is.na(input)) input$crps.alt.more.cons else NA, k = k))
+    result <-
+      base::append(result,
+                   e_value_calculate_lambda_for_alternative_betting_each(T.F.G = T.F.G, crps.F.para = crps.F.para,
+                                                                         crps.G.para = crps.G.para, inf.crps = inf.crps,
+                                                                         suffix = "alt.more.cons", F.proportion = 0.25,
+                                                                         G.proportion = 0.75,
+                                                                         crps.alt.old = if (!all(is.na(input))) input$crps.alt.more.cons else NA, k = k))
   }
 
   result <- result[!is.na(result)]
@@ -150,19 +165,19 @@ e_value_calculate_lambda_for_alternative_betting <- function(T.F.G, crps.F.para,
 e_value_calculate_lambda_for_alternative_betting_each <- function(T.F.G, crps.F.para, crps.G.para, inf.crps, suffix, F.proportion, G.proportion, crps.alt.old, k) {
   min.sample <- if (length(T.F.G) == 1) 20 else if (length(T.F.G) > 50) 50 else length(T.F.G)
 
-  if (!is.na(k) & !is.na(crps.alt.old)) {
-    y.sim <- (F.proportion * sapply(k:length(crps.F.para$points.cdf), \(i) {crps.F.para$sample.fun(min.sample, i)})) +
-      G.proportion * sapply(k:length(crps.G.para$points.cdf), crps.G.para$sample.fun(min.sample))
+  if (!is.na(k) & !all(is.na(crps.alt.old))) {
+    y.sim <- (F.proportion * sapply(k:length(crps.F.para$points.cdf), \(i) { crps.F.para$sample.fun(min.sample, i) })) +
+      G.proportion * sapply(k:length(crps.G.para$points.cdf), \(i) { crps.G.para$sample.fun(min.sample, i)})
     crps.alt.new <- crps.F.para$crps.fun.y.matrix(y.sim) - crps.G.para$crps.fun.y.matrix(y.sim)
     crps.alt <- c(crps.alt.old, crps.alt.new)
   } else {
     if (crps.F.para$method == 'raw') {
-      y.sim.F <- sapply(seq_along(crps.F.para$points.cdf), \(i) {crps.F.para$sample.fun(min.sample, i)})
+      y.sim.F <- sapply(seq_along(crps.F.para$points.cdf), \(i) { crps.F.para$sample.fun(min.sample, i) })
     } else {
       y.sim.F <- crps.F.para$sample.fun(min.sample)
     }
     if (crps.G.para$method == 'raw') {
-      y.sim.G <- sapply(seq_along(crps.G.para$points.cdf), \(i) {crps.G.para$sample.fun(min.sample, i)})
+      y.sim.G <- sapply(seq_along(crps.G.para$points.cdf), \(i) { crps.G.para$sample.fun(min.sample, i) })
     } else {
       y.sim.G <- crps.G.para$sample.fun(min.sample)
     }
@@ -214,9 +229,9 @@ next_k_e_values_for_point_cdfs <- function(e.value.run.before, new.y, new.crps.F
   }
 
   y <- e.value.run.before$y
-  crps.F.para <- e.value.run.before$crps.F.para
-  crps.G.para <- e.value.run.before$crps.G.para
-  method <- e.value.run.before$method
+  crps.F.para <- e.value.run.before$crps.F.fun
+  crps.G.para <- e.value.run.before$crps.G.fun
+  method <- e.value.run.before$method[[1]]
   lambda <- e.value.run.before$lambda
   p.value.method <- e.value.run.before$p.value.method
 
