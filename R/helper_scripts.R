@@ -80,7 +80,7 @@ check_input <- function(y, crps.F.para, crps.G.para, idx, method, lambda, p.valu
   }
 
   if (is.na(p.value.method)) {
-    debug("Parameter 'p.value.method' is na, hence no p.value will be calculated")
+    logger::log_debug("Parameter 'p.value.method' is na, hence no p.value will be calculated")
   }
 
   if (!is.na(p.value.method) &&
