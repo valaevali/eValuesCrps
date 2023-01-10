@@ -203,13 +203,13 @@ p_value_t_test <- function(crps.F, crps.G, p.value.method = "t") {
 
 #' @export
 next_k_e_values_for_point_cdfs <- function(e.value.run.before, new.y, new.crps.F.para, new.crps.G.para, idx = 2, k = 1) {
-  if (is.na(e.value.run.before)) {
+  if (all(is.na(e.value.run.before))) {
     stop("Initial step needs the return of the function e_values as input!")
   }
-  if (is.na(k) || k <= 0) {
+  if (all(is.na(k)) || k <= 0) {
     stop("K must be a positive integer!")
   }
-  if (is.na(new.y)) {
+  if (all(is.na(new.y))) {
     stop("next.y cannot be NA, please provide next.obs=?")
   }
 
