@@ -179,16 +179,16 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points.cdf = NA,
     crps.fun <- \(y) { sapply(seq_along(y), \(i) { crps_rf(y = y[i], points.cdf = points.cdf[i][[1]]) }) }
 
     crps.fun.y.matrix <- \(y) {
-      if (all(is.na(dim(y)))) dim <- c(length(y), 1) else dim <- dim(y)
-      result <- matrix(nrow = dim[2], ncol = dim[1])
+      if (all(is.na(dim(y)))) dim <- c(1, length(y)) else dim <- dim(y)
+      result <- matrix(nrow = dim[1], ncol = dim[2])
       for (k in 1:dim[1]) {
         for (l in 1:dim[2]) {
           if (all(is.na(dim(y)))) {
-            fun.y <- \(i, j) { crps_rf(y = y[i], points.cdf = points.cdf[j][[1]]) }
+            fun.y <- \(i, j) { crps_rf(y = y[j], points.cdf = points.cdf[i][[1]]) }
           } else {
-            fun.y <- \(i, j) { crps_rf(y = y[j, i], points.cdf = points.cdf[j][[1]]) }
+            fun.y <- \(i, j) { crps_rf(y = y[i, j], points.cdf = points.cdf[i][[1]]) }
           }
-          result[l, k] <- fun.y(k, l)
+          result[k,l] <- fun.y(k, l)
         }
       }
       return(result)
