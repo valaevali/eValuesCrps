@@ -38,7 +38,7 @@ Returns a list for each alternative betting strategy specified, containing \code
 the observation. \code{e.value.alt.(conf|cons|more.cons).prod} is the e-value process at time k (number of observations).
 }
 \description{
-This method calculates the lambda with the alternative betting strategy
+This method calculates the lambda with the predefined alternative betting strategy.
 }
 \seealso{
 \code{\link{e_value}}

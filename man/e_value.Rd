@@ -4,7 +4,17 @@
 \alias{e_value}
 \title{E-value}
 \usage{
-e_value(y, crps.F.para, crps.G.para)
+e_value(
+  y,
+  crps.F.para,
+  crps.G.para,
+  idx = 1,
+  method = list("alt-cons"),
+  lambda = 0.5,
+  p.value.method = NA,
+  old.run.e.value = NA,
+  k = NA
+)
 }
 \arguments{
 \item{y}{oberservations y \in R^k}
@@ -21,10 +31,10 @@ e_value(y, crps.F.para, crps.G.para)
 
 \item{p.value.method}{= NA, can be "t" for t-test and "dm" for dm.test of the package forecast}
 
-\item{old.run.e.value}{is the return of the last call to \code{e_value}, this can be called directly or with the function
+\item{old.run.e.value}{= NA, is the return of the last call to \code{e_value}, this can be called directly or with the function
 \code{\link{next_k_e_values}}.}
 
-\item{k}{is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated}
+\item{k}{= NA, is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated}
 }
 \value{
 Returns a list containing the input values and the calculated e-values and p-values (if specified).

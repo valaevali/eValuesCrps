@@ -4,7 +4,13 @@
 \alias{next_k_e_values}
 \title{E-value}
 \usage{
-next_k_e_values(e.value.run.before, new.y, new.crps.F.para, new.crps.G.para)
+next_k_e_values(
+  e.value.run.before,
+  new.y,
+  new.crps.F.para,
+  new.crps.G.para,
+  idx = 2
+)
 }
 \arguments{
 \item{e.value.run.before}{is the result of the run of \code{\link{e_value}}.}

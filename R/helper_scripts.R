@@ -124,9 +124,7 @@ optim_inf_value <- function(f, start.points = 2, min.value = 0.0001, max.value =
 #'
 #' @description This methods creates the additional functions from the input parameters for the calculations of lambda.
 #'
-#' @usage create_crps_fun(n.obs = 200, mu = rnorm(200), sd = 1)
-#'
-#' @param n.obs = NA, number of observations.
+#' @param n.obs = NA, number of observations, if not provided, this method tries to guess the n.obs from the other parameters provided.
 #' @param mu = 0, the mean of the forecast.
 #' @param sd = 1, the variance of the forecast.
 #' @param w = 1, the weight of a mixed forecast.
@@ -138,6 +136,9 @@ optim_inf_value <- function(f, start.points = 2, min.value = 0.0001, max.value =
 #' crps.fun.y.matrix is a function only special if method = "mixnorm" to calculate the alternative betting adaptive to forecasts otherwise it is equal to fun,
 #' rnorm is the function to calculate randomly normally distributed variables, inf.fun is the function to calculate the infimum for this forecast.
 #' For the raw method, see \code\link{{crps_rf}} or \code{\link{rcdf_rf}}.
+#'
+#' @examples
+#' create_crps_fun(n.obs = 200, mu = rnorm(200), sd = 1)
 #'
 #' @seealso \code{\link{e_value}}
 #'
@@ -209,7 +210,6 @@ create_crps_fun <- function(n.obs = NA, mu = 0, sd = 1, w = 1, points.cdf = NA, 
 #'
 #' @description Computs the CRPS of raw forecasts.
 #'
-#' @usage crps_rf(y, points.cdf)
 #'
 #' @param y a numeric vector of observations of the same length as the number of points.cdf, or of length 1.
 #' @param points.cdf a \code{data.frame} of numeric variables, used to compute the empirical distribution of the
@@ -244,7 +244,6 @@ crps_rf <- function(y, points.cdf) {
 #' @description Evaluate the cumulative distribution function (CDF) of raw forecasts in a \code{data.frame} at
 #' randomly generated thresholds.
 #'
-#' @usage rcdf_rf(y, points.cdf)
 #'
 #' @param points.cdf a \code{data.frame} of numeric variables, used to compute the empirical distribution of the
 #' variables in \code{points.cdf}.

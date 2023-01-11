@@ -4,10 +4,10 @@
 \alias{create_crps_fun}
 \title{Creates helper functions for different forecasts}
 \usage{
-create_crps_fun(n.obs = 200, mu = rnorm(200), sd = 1)
+create_crps_fun(n.obs = NA, mu = 0, sd = 1, w = 1, points.cdf = NA, ...)
 }
 \arguments{
-\item{n.obs}{= NA, number of observations.}
+\item{n.obs}{= NA, number of observations, if not provided, this method tries to guess the n.obs from the other parameters provided.}
 
 \item{mu}{= 0, the mean of the forecast.}
 
@@ -27,6 +27,10 @@ For the raw method, see \code\link{{crps_rf}} or \code{\link{rcdf_rf}}.
 }
 \description{
 This methods creates the additional functions from the input parameters for the calculations of lambda.
+}
+\examples{
+create_crps_fun(n.obs = 200, mu = rnorm(200), sd = 1)
+
 }
 \seealso{
 \code{\link{e_value}}

@@ -4,7 +4,7 @@
 \alias{rcdf_rf}
 \title{Random values of the cumulative distribution function (CDF) of raw forecasts}
 \usage{
-rcdf_rf(y, points.cdf)
+rcdf_rf(points.cdf, n)
 }
 \arguments{
 \item{points.cdf}{a \code{data.frame} of numeric variables, used to compute the empirical distribution of the

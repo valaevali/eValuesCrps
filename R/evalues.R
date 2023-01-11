@@ -6,8 +6,6 @@
 #' multiple e-values sequentially, then run this method once and for the next steps, use \code{\link{next_k_e_values}},
 #' because it does optimize the computational costs massively.
 #'
-#' @usage e_value(y, crps.F.para, crps.G.para)
-#'
 #' @param y oberservations y \in R^k
 #' @param crps.F.para of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)
 #' @param crps.G.para of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)
@@ -15,9 +13,9 @@
 #' @param method = list("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the different lambdas
 #' @param lambda = 0.5, lambda entry for a fixed value
 #' @param p.value.method = NA, can be "t" for t-test and "dm" for dm.test of the package forecast
-#' @param old.run.e.value is the return of the last call to \code{e_value}, this can be called directly or with the function
-#' \code{\link{next_k_e_values}}.
-#' @param k is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated
+#' @param old.run.e.value = NA, is the return of the last call to \code{e_value}, this can be called directly or with the function
+#'      \code{\link{next_k_e_values}}.
+#' @param k = NA, is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated
 #'
 #' @examples
 #' mu <- rnorm(10)
@@ -93,8 +91,6 @@ e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
 #' This method prepares the information of the old run from \code{\link{e_value}} to be run again and runs it with some additional input.
 #' With this approach, all the infimums, do not have to be calculated for each k, but only for the new ones and also for the betting
 #' approach, not the whole matrices have to be calculated again. This procedure reduces the computational cost massively.
-#'
-#' @usage next_k_e_values(e.value.run.before, new.y, new.crps.F.para, new.crps.G.para)
 #'
 #' @param e.value.run.before is the result of the run of \code{\link{e_value}}.
 #' @param new.y oberservations y \in R^k, is the new observation to evaluate
@@ -233,7 +229,7 @@ e_value_calculate_lambda_for_grapa_betting <- function(T.F.G) {
 #' Betting strategies
 #'
 #' @description
-#' This method calculates the lambda with the alternative betting strategy
+#' This method calculates the lambda with the predefined alternative betting strategy.
 #'
 #' @param T.F.G = (crps.F - crps.G) / inf.crps
 #' @param crps.F.para of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}
@@ -291,6 +287,31 @@ e_value_calculate_lambda_for_alternative_betting <- function(T.F.G, crps.F.para,
   return(result)
 }
 
+#' Betting strategies
+#'
+#' @description
+#' This method calculates the lambda with the alternative betting strategy for each strategy, or can be used to calculate
+#' individual proportions of the combinations of F and G.
+#'
+#' @param T.F.G = (crps.F - crps.G) / inf.crps
+#' @param crps.F.para of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}
+#' @param crps.G.para of the form \code{ist("mu" = -mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}
+#' @param inf.crps = infimum of crps.F - crps.G over y
+#' @param suffix defines the name of the betting strategy, it returns a list then, with the respectively names.suffix
+#' @param F.proportion F.proportion * crps.F.para$sample.fun + G.proportion * crps.G.para$sample.fun
+#' @param G.proportion F.proportion * crps.F.para$sample.fun + G.proportion * crps.G.para$sample.fun
+#' @param crps.alt.old is the return value of the last call to \code{\link{e_value}} for the specific betting strategy
+#' @param k is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated
+#'
+#' @return
+#' Returns a list for each alternative betting strategy specified, containing \code{e.value.alt.(suffix)},
+#' \code{e.value.alt.(suffix).prod} and \code{lambda.alt.(suffix)}.
+#' \code{e.value.alt.(suffix)} and \code{lambda.alt.(suffix)} are both vectors of the size of
+#' the observation. \code{e.value.alt.(suffix).prod} is the e-value process at time k (number of observations).
+#'
+#' @seealso \code{\link{e_value}}
+#'
+#' @export
 e_value_calculate_lambda_for_alternative_betting_each <- function(T.F.G, crps.F.para, crps.G.para, inf.crps, suffix, F.proportion, G.proportion, crps.alt.old, k) {
   min.sample <- 50
 
