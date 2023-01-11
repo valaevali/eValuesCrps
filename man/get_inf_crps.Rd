@@ -2,15 +2,27 @@
 % Please edit documentation in R/evalues.R
 \name{get_inf_crps}
 \alias{get_inf_crps}
-\title{This method calculates the infimum of crps.F - crps.G.}
+\title{Infimum calculation}
 \usage{
 get_inf_crps(crps.F.para, crps.G.para, n.obs, k = NA, old.inf = NA)
 }
 \arguments{
-\item{crps.F.para}{of the form list("mu" = mu, "sd" = 1)}
+\item{crps.F.para}{of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}}
 
-\item{crps.G.para}{of the form list("mu" = -mu, "sd" = 1)}
+\item{crps.G.para}{of the form \code{ist("mu" = -mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}}
+
+\item{n.obs}{is the number of observations}
+
+\item{k}{is the number of new observations for \code{\link{next_k_e_values_for_point_cdfs}}}
+
+\item{old.inf}{is the old infimum value of the last run of \code{e_value()}, used by \code{\link{next_k_e_values_for_point_cdfs}}}
+}
+\value{
+Returns the infimum value for crps.F - crps.G.
 }
 \description{
 This method calculates the infimum of crps.F - crps.G.
+}
+\seealso{
+\code{\link{e_value}}
 }
