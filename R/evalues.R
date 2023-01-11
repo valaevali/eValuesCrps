@@ -294,24 +294,24 @@ e_value_calculate_lambda_for_alternative_betting <- function(T.F.G, crps.F.para,
 e_value_calculate_lambda_for_alternative_betting_each <- function(T.F.G, crps.F.para, crps.G.para, inf.crps, suffix, F.proportion, G.proportion, crps.alt.old, k) {
   min.sample <- 50
 
-  if (!is.na(k) & !all(is.na(crps.alt.old))) {
-    y.sim <- t((F.proportion * sapply((length(crps.F.para$points.cdf) - k + 1):length(crps.F.para$points.cdf), \(i) { crps.F.para$sample.fun(min.sample, i) })) +
-      G.proportion * sapply((length(crps.F.para$points.cdf) - k + 1):length(crps.G.para$points.cdf), \(i) { crps.G.para$sample.fun(min.sample, i) }))
+  if (!is.na(k) & !all(is.na(crps.alt.old)) && crps.F.para$method == 'raw') {
+    y.sim <- (F.proportion * t(sapply((length(crps.F.para$points.cdf) - k + 1):length(crps.F.para$points.cdf), \(i) { crps.F.para$sample.fun(min.sample, i) })) +
+      G.proportion * t(sapply((length(crps.F.para$points.cdf) - k + 1):length(crps.G.para$points.cdf), \(i) { crps.G.para$sample.fun(min.sample, i) })))
     crps.alt.new <- crps.F.para$crps.fun.y.matrix(y.sim) - crps.G.para$crps.fun.y.matrix(y.sim)
     crps.alt <- rbind(crps.alt.old, crps.alt.new)
   } else {
     if (crps.F.para$method == 'raw') {
-      y.sim.F <- sapply(seq_along(crps.F.para$points.cdf), \(i) { crps.F.para$sample.fun(min.sample, i) })
+      y.sim.F <- t(sapply(seq_along(crps.F.para$points.cdf), \(i) { crps.F.para$sample.fun(min.sample, i) }))
     } else {
       y.sim.F <- crps.F.para$sample.fun(min.sample)
     }
     if (crps.G.para$method == 'raw') {
-      y.sim.G <- sapply(seq_along(crps.G.para$points.cdf), \(i) { crps.G.para$sample.fun(min.sample, i) })
+      y.sim.G <- t(sapply(seq_along(crps.G.para$points.cdf), \(i) { crps.G.para$sample.fun(min.sample, i) }))
     } else {
       y.sim.G <- crps.G.para$sample.fun(min.sample)
     }
 
-    y.sim <- t((F.proportion * y.sim.F + G.proportion * y.sim.G))
+    y.sim <- (F.proportion * y.sim.F + G.proportion * y.sim.G)
     crps.alt <- crps.F.para$crps.fun.y.matrix(y.sim) - crps.G.para$crps.fun.y.matrix(y.sim)
   }
 
@@ -345,6 +345,9 @@ e_value_calculate_lambda_for_alternative_betting_each <- function(T.F.G, crps.F.
 #'
 #' @export
 p_value_t_test <- function(crps.F, crps.G, p.value.method = "t") {
+  if (length(crps.F) == 1 || length(crps.G) == 1) {
+    stop("P-value cannot be calculated for one observation, please provide a larger data set.")
+  }
   if (p.value.method == "dm" || !(is.numeric(crps.F) && is.numeric(crps.G))) {
     p.value <- as.numeric(forecast::dm.test(crps.F, crps.G, alternative = "greater")$p.value)
   } else {

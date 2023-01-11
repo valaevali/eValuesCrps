@@ -126,7 +126,7 @@ optim_inf_value <- function(f, start.points = 2, min.value = 0.0001, max.value =
 #'
 #' @usage create_crps_fun(n.obs = 200, mu = rnorm(200), sd = 1)
 #'
-#' @param n.obs = 200, number of observations.
+#' @param n.obs = NA, number of observations.
 #' @param mu = 0, the mean of the forecast.
 #' @param sd = 1, the variance of the forecast.
 #' @param w = 1, the weight of a mixed forecast.
@@ -142,11 +142,25 @@ optim_inf_value <- function(f, start.points = 2, min.value = 0.0001, max.value =
 #' @seealso \code{\link{e_value}}
 #'
 #' @export
-create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points.cdf = NA, ...) {
+create_crps_fun <- function(n.obs = NA, mu = 0, sd = 1, w = 1, points.cdf = NA, ...) {
+  if (is.na(n.obs)) {
+    if (is.vector(mu) && length(mu) > 1) n.obs <- length(mu)
+    else if (is.matrix(mu) && nrow(mu) > 1) n.obs <- nrow(mu)
+    else if (is.vector(sd) && length(sd) > 1) n.obs <- length(sd)
+    else if (is.matrix(sd) && nrow(sd) > 1) n.obs <- nrow(sd)
+    else if (is.vector(w) && length(w) > 1) n.obs <- length(w)
+    else if (is.matrix(w) && nrow(w) > 1) n.obs <- nrow(w)
+    else if (is.matrix(points.cdf) && nrow(points.cdf) > 1) n.obs <- nrow(points.cdf)
+    else if (is.vector(mu) && length(mu) == 1 && is.vector(sd) && length(sd) == 1) n.obs <- 1
+    else {
+      stop("Number of rows cannot be determined! Please set n.obs.")
+    }
+  }
+
   if (is.matrix(mu) || is.matrix(sd) || is.matrix(w)) {
     method <- 'mixnorm'
     crps.fun <- \(y) { scoringRules::crps_mixnorm(y = y, m = mu, s = sd, w = w) }
-    crps.fun.y.matrix <- \(y) { sapply(1:dim(y)[2], \(i) { crps.fun(y[, i]) }) }
+    crps.fun.y.matrix <- \(y) { sapply(1:dim(y)[2], \(i) {scoringRules::crps_mixnorm(y = y[, i], m = mu, s = sd, w = w)}) }
     sample.fun <- \(n) { matrix(rnorm(n * n.obs, mean = mu, sd = sd), nrow = n.obs) }
     inf.crps.fun <- \(x, j) { scoringRules::crps_mixnorm(y = x, m = as.matrix(t(mu[j,]), nrow = 1), s = as.matrix(t(sd[1,])), w = as.matrix(t(w[1,]))) }
   } else if (!all(is.na(points.cdf))) {
