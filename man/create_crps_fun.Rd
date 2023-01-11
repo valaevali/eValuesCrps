@@ -4,7 +4,7 @@
 \alias{create_crps_fun}
 \title{Creates helper functions for different forecasts}
 \usage{
-create_crps_fun(n.obs = 200, mu = 0, sd = 1, w = 1, points.cdf = NA, ...)
+create_crps_fun(n.obs = 200, mu = rnorm(200), sd = 1)
 }
 \arguments{
 \item{n.obs}{= 200, number of observations.}
@@ -15,16 +15,19 @@ create_crps_fun(n.obs = 200, mu = 0, sd = 1, w = 1, points.cdf = NA, ...)
 
 \item{w}{= 1, the weight of a mixed forecast.}
 
+\item{points.cdf}{= NA, the \code{data.frame} for raw forecasts.}
+
 \item{...}{Additional parameters which are ignored.}
 }
 \value{
-A list of method = ("norm"|"mixnorm"), fun = \(y) {scoringRules::crps_norm(y=y, mean=mu, sd=sd} or \(y) { scoringRules::crps_mixnorm(y = y, m = mu, s = sd, w = w) } for mixed norm,
-         crps.fun.y.matrix is a function only special if method = "mixnorm" to calculate the alternative betting adaptive to forecasts otherwise it is equal to fun,
-         rnorm is the function to calculate randomly normally distributed variables, inf.fun is the function to calculate the infimum for this forecast.
+A list of method = ("norm"|"mixnorm"|"raw"), fun = \(y) {scoringRules::crps_norm(y=y, mean=mu, sd=sd} or \(y) { scoringRules::crps_mixnorm(y = y, m = mu, s = sd, w = w) } for mixed norm,
+crps.fun.y.matrix is a function only special if method = "mixnorm" to calculate the alternative betting adaptive to forecasts otherwise it is equal to fun,
+rnorm is the function to calculate randomly normally distributed variables, inf.fun is the function to calculate the infimum for this forecast.
+For the raw method, see \code\link{{crps_rf}} or \code{\link{rcdf_rf}}.
 }
 \description{
 This methods creates the additional functions from the input parameters for the calculations of lambda.
 }
-\examples{
-\dontrun{create_crps_fun(n.obs = 200, mu = rnorm(200), sd = 1)}
+\seealso{
+\code{\link{e_value}}
 }

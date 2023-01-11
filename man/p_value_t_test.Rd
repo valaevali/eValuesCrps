@@ -2,7 +2,7 @@
 % Please edit documentation in R/evalues.R
 \name{p_value_t_test}
 \alias{p_value_t_test}
-\title{This method calculates the Diebold-Mariano t-test}
+\title{P-value calculations}
 \usage{
 p_value_t_test(crps.F, crps.G, p.value.method = "t")
 }
@@ -13,6 +13,12 @@ p_value_t_test(crps.F, crps.G, p.value.method = "t")
 
 \item{p.value.method}{= one of ("t","dm"), "t" stand for t-test directly and dm stands for the dm.test method of the forecast package}
 }
+\value{
+Returns a single p-value.
+}
 \description{
 This method calculates the Diebold-Mariano t-test
+}
+\seealso{
+\code{\link{e_value}}
 }

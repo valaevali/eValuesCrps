@@ -4,7 +4,7 @@
 \alias{forecast_input}
 \title{Creates list for one input forecast of the form N(mu,sd)}
 \usage{
-forecast_input(mu, sd, w = NA)
+forecast_input(mu, sd, w = NA, points = NA, cdf = NA)
 }
 \arguments{
 \item{mu}{is the mean of the forecast, can be constant, vector or matrix.}
@@ -13,8 +13,17 @@ forecast_input(mu, sd, w = NA)
 
 \item{w}{= NA, optional, is the weight of a mixed forecast, can be a constant, vector or matrix.}
 
-\item{forecast.name}{is the name of the forecast.}
+\item{points}{= NA, optional, are the points used for raw forecasts, see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details.}
+
+\item{cdf}{= NA, optional, are the points used for raw forecasts, see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details.}
+}
+\value{
+Returns the list used in \code{\link{e_value}}.
 }
 \description{
-This is a helper function which returns the correct form for the forecast input for [sim_e_values()].
+This is a helper function which returns the correct form for the forecast input, which are normaly
+distributed, mixed normally distributed or are raw forecasts.
+}
+\seealso{
+\code{\link{e_value}}
 }

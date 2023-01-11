@@ -2,13 +2,21 @@
 % Please edit documentation in R/evalues.R
 \name{e_value_calculate_lambda_for_grapa_betting}
 \alias{e_value_calculate_lambda_for_grapa_betting}
-\title{This method calculates the lambda with the grapa betting strategy}
+\title{Betting strategies}
 \usage{
 e_value_calculate_lambda_for_grapa_betting(T.F.G)
 }
 \arguments{
 \item{T.F.G}{= (crps.F - crps.G) / inf.crps}
 }
+\value{
+Returns a list containing the calculated \code{e.value.grapa}, \code{e.value.grapa.prod} and the corresponding
+\code{lambda.grapa}. \code{e.value.grapa} and \code{lambda.grapa} are both vectors of the size of the observation.
+\code{e.value.grapa.prod} is the e-value process at time k (number of observations).
+}
 \description{
 This method calculates the lambda with the grapa betting strategy
+}
+\seealso{
+\code{\link{e_value}}
 }

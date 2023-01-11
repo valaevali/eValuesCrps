@@ -1,62 +1,3 @@
-# Title     : Helper Scripts
-# Created by: Velerie Haftka
-# Created on: 26.01.2022
-
-#' @export
-check_input_simulation <- function(n.it, n.obs, loosing.power.only, method, lambda, p.value.method, forecasts.input, loosing.power.forecasts, usual.forecasts, file.folder) {
-  if (is.na(n.it) || !is.numeric(n.it)) {
-    warning("Number of iterations should be a not-null numeric. Setting to default 200.")
-    n.it <- 200
-  }
-  if (is.na(n.obs) || !is.numeric(n.obs)) {
-    warning("Number of observations should be a not-null numeric. Setting to default 200.")
-    n.obs <- 200
-  }
-  if (is.na(loosing.power.only) || !is.logical(loosing.power.only)) {
-    warning("Parameter 'loosing.power.only' should be a not-null logical. Setting to default FALSE.")
-    loosing.power.only <- FALSE
-  }
-  if (!("GRAPA" %in% method) &&
-    !("lambda" %in% method) &&
-    !("alternative" %in% method) &&
-    !("alternative-mean" %in% method)) {
-    warning("Parameter 'method' did not match any defined methods, setting to default 'lambda' for a fixed value")
-    method <- list("lambda")
-  }
-  if (is.na(lambda) && ("lambda" %in% method)) {
-    warning("Method with fixed lambda is choosen, but no lambda is provided. Setting to default lambda = 0.5")
-    lambda <- 0.5
-  }
-  if (is.na(p.value.method)) {
-    warning("Parameter 'p.value.method' is na, hence no p.value will be calculated")
-  }
-  if (!is.na(p.value.method) &&
-    !("t" %in% p.value.method) &&
-    !("dm" %in% p.value.method)) {
-    warning("Parameter 'p.value.method' has to be one of ('t','dm'). Setting to default 't'")
-    p.value.method <- "t"
-  }
-  if (!is.na(forecasts.input) && !is.list(forecasts.input)) {
-    warning("Parameter 'forecasts.input' should be a list of lists. Ignoring input.")
-    forecasts.input <- NA
-  }
-  if (is.na(loosing.power.forecasts) || !is.logical(loosing.power.forecasts)) {
-    warning("Parameter 'loosing.power.forecasts' should be a not-null logical. Setting to default FALSE.")
-    loosing.power.forecasts <- FALSE
-  }
-  if (is.na(usual.forecasts) || !is.logical(usual.forecasts)) {
-    warning("Parameter 'usual.forecasts' should be a not-null logical. Setting to default TRUE.")
-    usual.forecasts <- TRUE
-  }
-  if (is.na(file.folder)) {
-    warning("Parameter 'file.folde' should not be null. Setting to default: getwd().")
-    file.folder <- getwd()
-  }
-
-  return(list("n.it" = n.it, "n.obs" = n.obs, "loosing.power.only" = loosing.power.only, "method" = method, "lambda" = lambda, "p.value.method" = p.value.method, "forecasts.input" = forecasts.input, "loosing.power.forecasts" = loosing.power.forecasts, "usual.forecasts" = usual.forecasts, "file.folder" = file.folder))
-}
-
-#' @export
 check_input <- function(y, crps.F.para, crps.G.para, idx, method, lambda, p.value.method) {
   if (all(is.na(y)) || !is.vector(y)) {
     stop("The parameter y had to be a vector.")
@@ -93,7 +34,6 @@ check_input <- function(y, crps.F.para, crps.G.para, idx, method, lambda, p.valu
   return(list("idx" = idx, "method" = method, "lambda" = lambda, "p.value.method" = p.value.method))
 }
 
-#' @export
 check_input_crps_para <- function(crps.para, f.g) {
   if (all(is.na(crps.para))) {
     stop(sprintf("The CRPS parameter should not be empty for %s.", f.g))
@@ -134,14 +74,26 @@ check_input_crps_para <- function(crps.para, f.g) {
 }
 
 #' Creates list for one input forecast of the form N(mu,sd)
-#' @description This is a helper function which returns the correct form for the forecast input for [sim_e_values()].
 #'
-#' @param forecast.name is the name of the forecast.
+#' @description This is a helper function which returns the correct form for the forecast input, which are normaly
+#' distributed, mixed normally distributed or are raw forecasts.
+#'
 #' @param mu is the mean of the forecast, can be constant, vector or matrix.
 #' @param sd is the variance of the forecast, can be a constant, vector or matrix.
 #' @param w = NA, optional, is the weight of a mixed forecast, can be a constant, vector or matrix.
+#' @param points = NA, optional, are the points used for raw forecasts, see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details.
+#' @param cdf = NA, optional, are the points used for raw forecasts, see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details.
+#'
+#' @return
+#' Returns the list used in \code{\link{e_value}}.
+#'
+#' @seealso \code{\link{e_value}}
+#'
 #' @export
-forecast_input <- function(mu, sd, w = NA) {
+forecast_input <- function(mu, sd, w = NA, points = NA, cdf = NA) {
+  if (!all(is.na(points)) && !all(is.na(cdf))) {
+    return(list("points.cdf" = tibble("points" = points, "cdf" = cdf)))
+  }
   if (all(is.na(w))) {
     return(list("mu" = mu, "sd" = sd))
   }
@@ -149,23 +101,46 @@ forecast_input <- function(mu, sd, w = NA) {
 }
 
 #' Calculating Infimum of difference of two forecasts
-#' @description This method makes a gitter search for global minima
+#'
+#' @description This method makes a gitter search for global minima. The start points are taken in between the
+#' \code{min.value} and the \code{max.value}.
+#'
+#' @param f the function which has to be optimized. The function has to take one value, ie f <- \(y) {}.
+#' @param start.points = 2, how many points to start the grid search with
+#' @param min.value = 0.0001, minimal value for the start.points to choose from
+#' @param max.value = 1, maximum value for the start.points to choose from
+#'
+#' @return
+#' Returns a single infimum value.
+#'
+#' @seealso \code{\link{e_value}}
+#'
 #' @export
 optim_inf_value <- function(f, start.points = 2, min.value = 0.0001, max.value = 1) {
   min(sapply(seq(min.value, max.value, length.out = start.points), \(y) { optim(y, f, lower = min.value, upper = max.value, method = "L-BFGS-B")$value }))
 }
 
 #' Creates helper functions for different forecasts
+#'
 #' @description This methods creates the additional functions from the input parameters for the calculations of lambda.
+#'
+#' @usage create_crps_fun(n.obs = 200, mu = rnorm(200), sd = 1)
+#'
 #' @param n.obs = 200, number of observations.
 #' @param mu = 0, the mean of the forecast.
 #' @param sd = 1, the variance of the forecast.
 #' @param w = 1, the weight of a mixed forecast.
+#' @param points.cdf = NA, the \code{data.frame} for raw forecasts.
 #' @param ... Additional parameters which are ignored.
-#' @returns A list of method = ("norm"|"mixnorm"), fun = \(y) {scoringRules::crps_norm(y=y, mean=mu, sd=sd} or \(y) { scoringRules::crps_mixnorm(y = y, m = mu, s = sd, w = w) } for mixed norm,
-#'          crps.fun.y.matrix is a function only special if method = "mixnorm" to calculate the alternative betting adaptive to forecasts otherwise it is equal to fun,
-#'          rnorm is the function to calculate randomly normally distributed variables, inf.fun is the function to calculate the infimum for this forecast.
-#' @examples \dontrun{create_crps_fun(n.obs = 200, mu = rnorm(200), sd = 1)}
+#'
+#' @returns
+#' A list of method = ("norm"|"mixnorm"|"raw"), fun = \(y) {scoringRules::crps_norm(y=y, mean=mu, sd=sd} or \(y) { scoringRules::crps_mixnorm(y = y, m = mu, s = sd, w = w) } for mixed norm,
+#' crps.fun.y.matrix is a function only special if method = "mixnorm" to calculate the alternative betting adaptive to forecasts otherwise it is equal to fun,
+#' rnorm is the function to calculate randomly normally distributed variables, inf.fun is the function to calculate the infimum for this forecast.
+#' For the raw method, see \code\link{{crps_rf}} or \code{\link{rcdf_rf}}.
+#'
+#' @seealso \code{\link{e_value}}
+#'
 #' @export
 create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points.cdf = NA, ...) {
   if (is.matrix(mu) || is.matrix(sd) || is.matrix(w)) {
@@ -216,6 +191,26 @@ create_crps_fun <- function(n.obs = 200, mu = 0, sd = 1, w = 1, points.cdf = NA,
               "sample.fun" = sample.fun, "inf.fun" = inf.crps.fun))
 }
 
+#' Continuous ranked probability score (CRPS)
+#'
+#' @description Computs the CRPS of raw forecasts.
+#'
+#' @usage crps_rf(y, points.cdf)
+#'
+#' @param y a numeric vector of observations of the same length as the number of points.cdf, or of length 1.
+#' @param points.cdf a \code{data.frame} of numeric variables, used to compute the empirical distribution of the
+#' variables in \code{points.cdf}.
+#'
+#' @details
+#' This function uses adapted code taken from the function \code{crps_edf} of the \pkg{scoringRules} package and of the
+#' function \code{cdf} of the \pkg{isoditrreg} package.
+#'
+#' @return
+#' If the input y is only a scalar, then it does return a single CRPS value. If y is a vector, it does return a vector
+#' of CRPS values, evaluated for each y.
+#'
+#' @seealso \code{\link{e_value}}
+#'
 #' @export
 crps_rf <- function(y, points.cdf) {
   # Check input
@@ -230,6 +225,27 @@ crps_rf <- function(y, points.cdf) {
   sapply(y, crps0)
 }
 
+#' Random values of the cumulative distribution function (CDF) of raw forecasts
+#'
+#' @description Evaluate the cumulative distribution function (CDF) of raw forecasts in a \code{data.frame} at
+#' randomly generated thresholds.
+#'
+#' @usage rcdf_rf(y, points.cdf)
+#'
+#' @param points.cdf a \code{data.frame} of numeric variables, used to compute the empirical distribution of the
+#' variables in \code{points.cdf}.
+#' @param n is the number of randomly generated thresholds to evaluate the cdf at.
+#'
+#' @details
+#' The CDFs are considered as piecewise constant stepfunctions. The \code{points} in the \code{data.frame}
+#' \code{points.cdf} are the points where the empirical distribution of the forecasts has jumps and \code{cdf} in the
+#' \code{data.frame} \code{points.cdf} are the corresponding CDF values.
+#'
+#' @return
+#' A vector of probabilities giving the evaluated CDFs at the randomly generated thresholds.
+#'
+#' @seealso \code{\link{e_value}}
+#'
 #' @export
 rcdf_rf <- function(points.cdf, n) {
   r <- runif(n, min = min(points.cdf$points), max = max(points.cdf$points))
