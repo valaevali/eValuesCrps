@@ -135,7 +135,7 @@ optim_inf_value <- function(f, start.points = 2, min.value = 0.0001, max.value =
 #' A list of method = ("norm"|"mixnorm"|"raw"), fun = \(y) {scoringRules::crps_norm(y=y, mean=mu, sd=sd} or \(y) { scoringRules::crps_mixnorm(y = y, m = mu, s = sd, w = w) } for mixed norm,
 #' crps.fun.y.matrix is a function only special if method = "mixnorm" to calculate the alternative betting adaptive to forecasts otherwise it is equal to fun,
 #' rnorm is the function to calculate randomly normally distributed variables, inf.fun is the function to calculate the infimum for this forecast.
-#' For the raw method, see \code\link{{crps_rf}} or \code{\link{rcdf_rf}}.
+#' For the raw method, see \code{\link{crps_rf}} or \code{\link{rcdf_rf}}.
 #'
 #' @examples
 #' create_crps_fun(n.obs = 200, mu = rnorm(200), sd = 1)
