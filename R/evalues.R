@@ -3,7 +3,7 @@
 #' @description
 #' This method is the main method of this package and calculates the e.values for one input.
 #' This method uses the optional stopping principle, because of \code{max(cumprod(e.value)}. If your goal is to calculate
-#' multiple e-values sequentially, then run this method once and for the next steps, use \code{\link{next_k_e_values_for_point_cdfs}},
+#' multiple e-values sequentially, then run this method once and for the next steps, use \code{\link{next_k_e_values}},
 #' because it does optimize the computational costs massively.
 #'
 #' @usage e_value(y, crps.F.para, crps.G.para)
@@ -16,8 +16,8 @@
 #' @param lambda = 0.5, lambda entry for a fixed value
 #' @param p.value.method = NA, can be "t" for t-test and "dm" for dm.test of the package forecast
 #' @param old.run.e.value is the return of the last call to \code{e_value}, this can be called directly or with the function
-#' \code{\link{next_k_e_values_for_point_cdfs}}.
-#' @param k is the parameter used for \code{\link{next_k_e_values_for_point_cdfs}} to specify how many new observations are evaulated
+#' \code{\link{next_k_e_values}}.
+#' @param k is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated
 #'
 #' @examples
 #' mu <- rnorm(10)
@@ -27,7 +27,7 @@
 #' @return
 #' Returns a list containing the input values and the calculated e-values and p-values (if specified).
 #'
-#' @seealso \code{\link{next_k_e_values_for_point_cdfs}}, \code{\link{crps_rf}}, \code{\link{rcdf_rf}}
+#' @seealso \code{\link{next_k_e_values}}, \code{\link{crps_rf}}, \code{\link{rcdf_rf}}
 #'
 #' @export
 e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
@@ -94,7 +94,7 @@ e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
 #' With this approach, all the infimums, do not have to be calculated for each k, but only for the new ones and also for the betting
 #' approach, not the whole matrices have to be calculated again. This procedure reduces the computational cost massively.
 #'
-#' @usage next_k_e_values_for_point_cdfs(e.value.run.before, new.y, new.crps.F.para, new.crps.G.para)
+#' @usage next_k_e_values(e.value.run.before, new.y, new.crps.F.para, new.crps.G.para)
 #'
 #' @param e.value.run.before is the result of the run of \code{\link{e_value}}.
 #' @param new.y oberservations y \in R^k, is the new observation to evaluate
@@ -117,7 +117,7 @@ e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
 #' @seealso \code{\link{e_value}}
 #'
 #' @export
-next_k_e_values_for_point_cdfs <- function(e.value.run.before, new.y, new.crps.F.para, new.crps.G.para, idx = 2) {
+next_k_e_values <- function(e.value.run.before, new.y, new.crps.F.para, new.crps.G.para, idx = 2) {
   if (all(is.na(e.value.run.before))) {
     stop("Initial step needs the return of the function e_values as input!")
   }
@@ -162,8 +162,8 @@ next_k_e_values_for_point_cdfs <- function(e.value.run.before, new.y, new.crps.F
 #' @param crps.F.para of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}
 #' @param crps.G.para of the form \code{ist("mu" = -mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}
 #' @param n.obs is the number of observations
-#' @param k is the number of new observations for \code{\link{next_k_e_values_for_point_cdfs}}
-#' @param old.inf is the old infimum value of the last run of \code{e_value()}, used by \code{\link{next_k_e_values_for_point_cdfs}}
+#' @param k is the number of new observations for \code{\link{next_k_e_values}}
+#' @param old.inf is the old infimum value of the last run of \code{e_value()}, used by \code{\link{next_k_e_values}}
 #'
 #' @return
 #' Returns the infimum value for crps.F - crps.G.
@@ -242,8 +242,8 @@ e_value_calculate_lambda_for_grapa_betting <- function(T.F.G) {
 #' @param method = list("alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the
 #' different lambdas
 #' @param old.run.e.value is the return of the last call to \code{\link{e_value}}, this can be called directly or with the function
-#' \code{\link{next_k_e_values_for_point_cdfs}}
-#' @param k is the parameter used for \code{\link{next_k_e_values_for_point_cdfs}} to specify how many new observations are evaulated
+#' \code{\link{next_k_e_values}}
+#' @param k is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated
 #'
 #' @return
 #' Returns a list for each alternative betting strategy specified, containing \code{e.value.alt.(conf|cons|more.cons)},

@@ -27,9 +27,9 @@ e_value_calculate_lambda_for_alternative_betting(
 different lambdas}
 
 \item{old.run.e.value}{is the return of the last call to \code{\link{e_value}}, this can be called directly or with the function
-\code{\link{next_k_e_values_for_point_cdfs}}}
+\code{\link{next_k_e_values}}}
 
-\item{k}{is the parameter used for \code{\link{next_k_e_values_for_point_cdfs}} to specify how many new observations are evaulated}
+\item{k}{is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated}
 }
 \value{
 Returns a list for each alternative betting strategy specified, containing \code{e.value.alt.(conf|cons|more.cons)},

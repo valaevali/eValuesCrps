@@ -13,9 +13,9 @@ get_inf_crps(crps.F.para, crps.G.para, n.obs, k = NA, old.inf = NA)
 
 \item{n.obs}{is the number of observations}
 
-\item{k}{is the number of new observations for \code{\link{next_k_e_values_for_point_cdfs}}}
+\item{k}{is the number of new observations for \code{\link{next_k_e_values}}}
 
-\item{old.inf}{is the old infimum value of the last run of \code{e_value()}, used by \code{\link{next_k_e_values_for_point_cdfs}}}
+\item{old.inf}{is the old infimum value of the last run of \code{e_value()}, used by \code{\link{next_k_e_values}}}
 }
 \value{
 Returns the infimum value for crps.F - crps.G.

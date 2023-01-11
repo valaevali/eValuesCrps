@@ -7,7 +7,7 @@
 create_crps_fun(n.obs = 200, mu = rnorm(200), sd = 1)
 }
 \arguments{
-\item{n.obs}{= 200, number of observations.}
+\item{n.obs}{= NA, number of observations.}
 
 \item{mu}{= 0, the mean of the forecast.}
 

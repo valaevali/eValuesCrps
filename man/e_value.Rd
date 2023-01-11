@@ -22,9 +22,9 @@ e_value(y, crps.F.para, crps.G.para)
 \item{p.value.method}{= NA, can be "t" for t-test and "dm" for dm.test of the package forecast}
 
 \item{old.run.e.value}{is the return of the last call to \code{e_value}, this can be called directly or with the function
-\code{\link{next_k_e_values_for_point_cdfs}}.}
+\code{\link{next_k_e_values}}.}
 
-\item{k}{is the parameter used for \code{\link{next_k_e_values_for_point_cdfs}} to specify how many new observations are evaulated}
+\item{k}{is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated}
 }
 \value{
 Returns a list containing the input values and the calculated e-values and p-values (if specified).
@@ -32,7 +32,7 @@ Returns a list containing the input values and the calculated e-values and p-val
 \description{
 This method is the main method of this package and calculates the e.values for one input.
 This method uses the optional stopping principle, because of \code{max(cumprod(e.value)}. If your goal is to calculate
-multiple e-values sequentially, then run this method once and for the next steps, use \code{\link{next_k_e_values_for_point_cdfs}},
+multiple e-values sequentially, then run this method once and for the next steps, use \code{\link{next_k_e_values}},
 because it does optimize the computational costs massively.
 }
 \examples{
@@ -42,5 +42,5 @@ e_value(y = y, crps.F.para = list("mu" = mu, "sd" = 1), crps.G.para = list("mu" 
 
 }
 \seealso{
-\code{\link{next_k_e_values_for_point_cdfs}}, \code{\link{crps_rf}}, \code{\link{rcdf_rf}}
+\code{\link{next_k_e_values}}, \code{\link{crps_rf}}, \code{\link{rcdf_rf}}
 }
