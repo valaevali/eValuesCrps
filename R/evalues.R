@@ -6,11 +6,11 @@
 #' multiple e-values sequentially, then run this method once and for the next steps, use \code{\link{next_k_e_values}},
 #' because it does optimize the computational costs massively.
 #'
-#' @param y oberservations y \in R^k
-#' @param crps.F.para of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)
-#' @param crps.G.para of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)
+#' @param y oberservations y in R^k
+#' @param crps.F.para of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble::tibble with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)
+#' @param crps.G.para of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble::tibble with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)
 #' @param idx = 1, this is an aditional parameter to idex the run of this call
-#' @param method = list("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the different lambdas
+#' @param method = c("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the different lambdas
 #' @param lambda = 0.5, lambda entry for a fixed value
 #' @param p.value.method = NA, can be "t" for t-test and "dm" for dm.test of the package forecast
 #' @param old.run.e.value = NA, is the return of the last call to \code{e_value}, this can be called directly or with the function
@@ -18,8 +18,8 @@
 #' @param k = NA, is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated
 #'
 #' @examples
-#' mu <- rnorm(10)
-#' y <- rnorm(10, mu)
+#' mu <- stats::rnorm(10)
+#' y <- stats::rnorm(10, mu)
 #' e_value(y = y, crps.F.para = list("mu" = mu, "sd" = 1), crps.G.para = list("mu" = 0, "sd" = 2))
 #'
 #' @return
@@ -29,7 +29,7 @@
 #'
 #' @export
 e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
-                    method = list("alt-cons"), lambda = 0.5, p.value.method = NA, old.run.e.value = NA, k = NA) {
+                    method = "alt-cons", lambda = 0.5, p.value.method = NA, old.run.e.value = NA, k = NA) {
   checkedInput <- check_input(y, crps.F.para, crps.G.para, idx, method, lambda, p.value.method)
   idx <- checkedInput$idx
   method <- checkedInput$method
@@ -40,7 +40,7 @@ e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
   crps.G.para <- base::append(crps.G.para, rlang::exec(create_crps_fun, length(y), !!!crps.G.para))
   n.obs <- length(y)
 
-  if (!is.na(k)) {
+  if (!is.na(k) && (crps.F.para$method == 'raw' && crps.G.para$method == 'raw')) {
     crps.F <- c(old.run.e.value$crps.F, crps.F.para$fun(y[(n.obs - k + 1):n.obs]))
     crps.G <- c(old.run.e.value$crps.G, crps.G.para$fun(y[(n.obs - k + 1):n.obs]))
   } else {
@@ -93,19 +93,28 @@ e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
 #' approach, not the whole matrices have to be calculated again. This procedure reduces the computational cost massively.
 #'
 #' @param e.value.run.before is the result of the run of \code{\link{e_value}}.
-#' @param new.y oberservations y \in R^k, is the new observation to evaluate
+#' @param new.y oberservations y in R^k, is the new observation to evaluate
 #' @param new.crps.F.para of the form \code{list("mu" = mu[k], "sd" = NA)} or of the form
-#' \code{list("points.cdf" = tibble with points and cdfs)}, if either "mu" or "sd" are a single value, set it to NA.
+#' \code{list("points.cdf" = tibble::tibble with points and cdfs)}, if either "mu" or "sd" are a single value, set it to NA.
+#' For mixnorm, put the new row of mu,sd and w as input, see examples.
 #' @param new.crps.G.para of the form \code{list("mu" = mu[k], "sd" = NA)} or of the form
-#' \code{list("points.cdf" = tibble with points and cdfs)}, if either "mu" or "sd" are a single value, set it to NA.
+#' \code{list("points.cdf" = tibble::tibble with points and cdfs)}, if either "mu" or "sd" are a single value, set it to NA.
+#' For mixnorm, put the new row of mu,sd and w as input, see examples.
 #' @param idx = 2, this is an aditional parameter to idex the run of this call
 #'
 #' @examples
-#' mu <- rnorm(10)
-#' y <- rnorm(10, mu)
+#' mu <- stats::rnorm(10)
+#' y <- stats::rnorm(10, mu)
 #' result <- e_value(y = y, crps.F.para = list("mu" = mu, "sd" = 1), crps.G.para = list("mu" = 0, "sd" = 2))
-#' new.mu <- rnorm(1)
-#' next_k_e_values(result, new.y = rnorm(1, new.mu), cprs.F.para = list("mu" = new.mu, "sd" = NA), crps.G.para = list("mu" = NA, "sd" = NA))
+#' new.mu <- stats::rnorm(1)
+#' next_k_e_values(result, new.y = stats::rnorm(1, new.mu), new.crps.F.para = list("mu" = new.mu, "sd" = NA), new.crps.G.para = list("mu" = NA, "sd" = NA))
+#'
+#' mu <- stats::rnorm(10)
+#' tau <- sample(c(-1, 1), 10, replace = TRUE)
+#' result.next.k.clim.mixnorm.first <- e_value(rnorm(10), forecast_input(mu = 0, sd = 1), forecast_input(mu = cbind(mu, mu + tau), sd = matrix(nrow = 10, ncol = 2, 1), w = matrix(nrow = 10, ncol = 2, 1 / 2)), method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
+#' new.mu <- stats::rnorm(1)
+#' new.tau <- sample(c(-1, 1), 1)
+#' result.next.k.clim.mixnorm <- next_k_e_values(result.next.k.clim.mixnorm.first, new.y = stats::rnorm(1, new.mu), new.crps.F.para = list("mu" = NA, "sd" = NA), new.crps.G.para = list("mu" = c(new.mu, new.mu + new.tau), "sd" = c(1,1), "w" = c(1/2, 1/2)))
 #'
 #' @return
 #' Returns a list containing the input values and the calculated e-values.
@@ -120,30 +129,50 @@ next_k_e_values <- function(e.value.run.before, new.y, new.crps.F.para, new.crps
   if (all(is.na(new.y))) {
     stop("new.y cannot be NA, please provide new.y=?")
   }
+  if (!any(c("mu", "sd", "points.cdf") %in% names(new.crps.F.para)) || !any(c("mu", "sd", "points.cdf") %in% names(new.crps.G.para))) {
+    stop("New input parameters for both F and G are needed. If both have only single values for mu and sd (norm), then use new.crps.(F|G).para = list(\"mu\" = NA, \"sd\" = NA).")
+  }
 
   k <- length(new.y)
 
   y <- e.value.run.before$y
   crps.F.para <- e.value.run.before$crps.F.fun
   crps.G.para <- e.value.run.before$crps.G.fun
-  method <- e.value.run.before$method[[1]]
+  method <- e.value.run.before$method
   lambda <- e.value.run.before$lambda
   p.value.method <- e.value.run.before$p.value.method
 
   y <- append(y, new.y)
+  # F parameters
   if (("norm" == crps.F.para$method) && ("mu" %in% names(crps.F.para)) && ("sd" %in% names(crps.F.para))) {
-    crps.F.para <- list("mu" = na.omit(append(crps.F.para$mu, new.crps.F.para$mu)), "sd" = na.omit(append(crps.F.para$mu, new.crps.F.para$mu)))
+    crps.F.para <- list("mu" = stats::na.omit(append(crps.F.para$mu, new.crps.F.para$mu)), "sd" = stats::na.omit(append(crps.F.para$sd, new.crps.F.para$sd)))
   } else if ("points.cdf" %in% names(crps.F.para) && "raw" == crps.F.para$method) {
     crps.F.para <- list("points.cdf" = append(crps.F.para$points.cdf, new.crps.F.para))
   } else {
-
+    if (all(is.na(new.crps.F.para$mu)) || all(is.na(new.crps.F.para$sd)) || ("w" %in% names(crps.F.para) && all(is.na(new.crps.F.para$w)))) {
+      stop("For 'mixnorm' all the new parameters for F must be provided and have the same dimensions.")
+    }
+    if ("w" %in% names(crps.F.para)) {
+      crps.F.para <- list("mu" = rbind(crps.F.para$mu, new.crps.F.para$mu, "sd" = rbind(crps.F.para$sd, new.crps.F.para$sd), "w" = rbind(crps.F.para$w, new.crps.F.para$w)))
+    } else {
+      crps.F.para <- list("mu" = rbind(crps.F.para$mu, new.crps.F.para$mu, "sd" = rbind(crps.F.para$sd, new.crps.F.para$sd)))
+    }
   }
+
+  # G parameters
   if (("norm" == crps.G.para$method) && ("mu" %in% names(crps.G.para)) && ("sd" %in% names(crps.G.para))) {
-    crps.G.para <- list("mu" = na.omit(append(crps.G.para$mu, new.crps.G.para$mu)), "sd" = na.omit(append(crps.G.para$mu, new.crps.G.para$mu)))
+    crps.G.para <- list("mu" = na.omit(append(crps.G.para$mu, new.crps.G.para$mu)), "sd" = na.omit(append(crps.G.para$sd, new.crps.G.para$sd)))
   } else if ("points.cdf" %in% names(crps.G.para) && "raw" == crps.G.para$method) {
     crps.G.para <- list("points.cdf" = append(crps.G.para$points.cdf, new.crps.G.para))
   } else {
-
+    if (all(is.na(new.crps.G.para$mu)) || all(is.na(new.crps.G.para$sd)) || ("w" %in% names(crps.G.para) && all(is.na(new.crps.G.para$w)))) {
+      stop("For 'mixnorm' all the new parameters for G must be provided and have the same dimensions.")
+    }
+    if ("w" %in% names(crps.G.para)) {
+      crps.G.para <- list("mu" = rbind(crps.G.para$mu, new.crps.G.para$mu), "sd" = rbind(crps.G.para$sd, new.crps.G.para$sd), "w" = rbind(crps.G.para$w, new.crps.G.para$w))
+    } else {
+      crps.G.para <- list("mu" = rbind(crps.G.para$mu, new.crps.G.para$mu), "sd" = rbind(crps.G.para$sd, new.crps.G.para$sd))
+    }
   }
 
   return(e_value(y = y, crps.F.para = crps.F.para, crps.G.para = crps.G.para, idx = idx,
@@ -155,8 +184,8 @@ next_k_e_values <- function(e.value.run.before, new.y, new.crps.F.para, new.crps
 #' @description
 #' This method calculates the infimum of crps.F - crps.G.
 #'
-#' @param crps.F.para of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}
-#' @param crps.G.para of the form \code{ist("mu" = -mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}
+#' @param crps.F.para of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble::tibble with points and cdfs)}
+#' @param crps.G.para of the form \code{ist("mu" = -mu, "sd" = 1)} or \code{list("points.cdf" = tibble::tibble with points and cdfs)}
 #' @param n.obs is the number of observations
 #' @param k is the number of new observations for \code{\link{next_k_e_values}}
 #' @param old.inf is the old infimum value of the last run of \code{e_value()}, used by \code{\link{next_k_e_values}}
@@ -232,8 +261,8 @@ e_value_calculate_lambda_for_grapa_betting <- function(T.F.G) {
 #' This method calculates the lambda with the predefined alternative betting strategy.
 #'
 #' @param T.F.G = (crps.F - crps.G) / inf.crps
-#' @param crps.F.para of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}
-#' @param crps.G.para of the form \code{ist("mu" = -mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}
+#' @param crps.F.para of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble::tibble with points and cdfs)}
+#' @param crps.G.para of the form \code{ist("mu" = -mu, "sd" = 1)} or \code{list("points.cdf" = tibble::tibble with points and cdfs)}
 #' @param inf.crps = infimum of crps.F - crps.G over y
 #' @param method = list("alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the
 #' different lambdas
@@ -294,8 +323,8 @@ e_value_calculate_lambda_for_alternative_betting <- function(T.F.G, crps.F.para,
 #' individual proportions of the combinations of F and G.
 #'
 #' @param T.F.G = (crps.F - crps.G) / inf.crps
-#' @param crps.F.para of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}
-#' @param crps.G.para of the form \code{ist("mu" = -mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}
+#' @param crps.F.para of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble::tibble with points and cdfs)}
+#' @param crps.G.para of the form \code{ist("mu" = -mu, "sd" = 1)} or \code{list("points.cdf" = tibble::tibble with points and cdfs)}
 #' @param inf.crps = infimum of crps.F - crps.G over y
 #' @param suffix defines the name of the betting strategy, it returns a list then, with the respectively names.suffix
 #' @param F.proportion F.proportion * crps.F.para$sample.fun + G.proportion * crps.G.para$sample.fun
@@ -346,7 +375,7 @@ e_value_calculate_lambda_for_alternative_betting_each <- function(T.F.G, crps.F.
 
   e.value.alt <- 1 + lambda.alt * T.F.G
   e.value.alt.prod <- max(cumprod(e.value.alt))
-  result <- setNames(list(e.value.alt, e.value.alt.prod, lambda.alt, crps.alt), c(paste0("e.value.", suffix), paste0("e.value.", suffix, ".prod"), paste0("lambda.", suffix), paste0("crps.", suffix)))
+  result <- stats::setNames(list(e.value.alt, e.value.alt.prod, lambda.alt, crps.alt), c(paste0("e.value.", suffix), paste0("e.value.", suffix, ".prod"), paste0("lambda.", suffix), paste0("crps.", suffix)))
   return(result)
 }
 
@@ -374,7 +403,7 @@ p_value_t_test <- function(crps.F, crps.G, p.value.method = "t") {
   } else {
     sigma.n <- 1 / length(crps.F) * sum((crps.F - crps.G)^2)
     test.statistic <- sqrt(length(crps.F)) * ((crps.F - crps.G) / sigma.n)
-    p.value <- as.numeric(t.test(test.statistic, alternative = "greater")$p.value)
+    p.value <- as.numeric(stats::t.test(test.statistic, alternative = "greater")$p.value)
   }
   return(list("p.value" = p.value))
 }

@@ -7,9 +7,9 @@
 get_inf_crps(crps.F.para, crps.G.para, n.obs, k = NA, old.inf = NA)
 }
 \arguments{
-\item{crps.F.para}{of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}}
+\item{crps.F.para}{of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble::tibble with points and cdfs)}}
 
-\item{crps.G.para}{of the form \code{ist("mu" = -mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}}
+\item{crps.G.para}{of the form \code{ist("mu" = -mu, "sd" = 1)} or \code{list("points.cdf" = tibble::tibble with points and cdfs)}}
 
 \item{n.obs}{is the number of observations}
 

@@ -92,7 +92,7 @@ check_input_crps_para <- function(crps.para, f.g) {
 #' @export
 forecast_input <- function(mu, sd, w = NA, points = NA, cdf = NA) {
   if (!all(is.na(points)) && !all(is.na(cdf))) {
-    return(list("points.cdf" = tibble("points" = points, "cdf" = cdf)))
+    return(list("points.cdf" = tibble::tibble("points" = points, "cdf" = cdf)))
   }
   if (all(is.na(w))) {
     return(list("mu" = mu, "sd" = sd))
@@ -117,7 +117,7 @@ forecast_input <- function(mu, sd, w = NA, points = NA, cdf = NA) {
 #'
 #' @export
 optim_inf_value <- function(f, start.points = 2, min.value = 0.0001, max.value = 1) {
-  min(sapply(seq(min.value, max.value, length.out = start.points), \(y) { optim(y, f, lower = min.value, upper = max.value, method = "L-BFGS-B")$value }))
+  min(sapply(seq(min.value, max.value, length.out = start.points), \(y) { stats::optim(y, f, lower = min.value, upper = max.value, method = "L-BFGS-B")$value }))
 }
 
 #' Creates helper functions for different forecasts
@@ -134,11 +134,11 @@ optim_inf_value <- function(f, start.points = 2, min.value = 0.0001, max.value =
 #' @returns
 #' A list of method = ("norm"|"mixnorm"|"raw"), fun = \(y) {scoringRules::crps_norm(y=y, mean=mu, sd=sd} or \(y) { scoringRules::crps_mixnorm(y = y, m = mu, s = sd, w = w) } for mixed norm,
 #' crps.fun.y.matrix is a function only special if method = "mixnorm" to calculate the alternative betting adaptive to forecasts otherwise it is equal to fun,
-#' rnorm is the function to calculate randomly normally distributed variables, inf.fun is the function to calculate the infimum for this forecast.
+#' stats::rnorm is the function to calculate randomly normally distributed variables, inf.fun is the function to calculate the infimum for this forecast.
 #' For the raw method, see \code{\link{crps_rf}} or \code{\link{rcdf_rf}}.
 #'
 #' @examples
-#' create_crps_fun(n.obs = 200, mu = rnorm(200), sd = 1)
+#' create_crps_fun(n.obs = 200, mu = stats::rnorm(200), sd = 1)
 #'
 #' @seealso \code{\link{e_value}}
 #'
@@ -162,7 +162,7 @@ create_crps_fun <- function(n.obs = NA, mu = 0, sd = 1, w = 1, points.cdf = NA, 
     method <- 'mixnorm'
     crps.fun <- \(y) { scoringRules::crps_mixnorm(y = y, m = mu, s = sd, w = w) }
     crps.fun.y.matrix <- \(y) { sapply(1:dim(y)[2], \(i) {scoringRules::crps_mixnorm(y = y[, i], m = mu, s = sd, w = w)}) }
-    sample.fun <- \(n) { matrix(rnorm(n * n.obs, mean = mu, sd = sd), nrow = n.obs) }
+    sample.fun <- \(n) { matrix(stats::rnorm(n * n.obs, mean = mu, sd = sd), nrow = n.obs) }
     inf.crps.fun <- \(x, j) { scoringRules::crps_mixnorm(y = x, m = as.matrix(t(mu[j,]), nrow = 1), s = as.matrix(t(sd[1,])), w = as.matrix(t(w[1,]))) }
   } else if (!all(is.na(points.cdf))) {
     method <- 'raw'
@@ -190,7 +190,7 @@ create_crps_fun <- function(n.obs = NA, mu = 0, sd = 1, w = 1, points.cdf = NA, 
     method <- 'norm'
     crps.fun <- \(y) { scoringRules::crps_norm(y = y, mean = mu, sd = sd) }
     crps.fun.y.matrix <- crps.fun
-    sample.fun <- \(n) { matrix(rnorm(n * n.obs, mean = mu, sd = sd), nrow = n.obs) }
+    sample.fun <- \(n) { matrix(stats::rnorm(n * n.obs, mean = mu, sd = sd), nrow = n.obs) }
 
     if (length(mu) > 1 & length(sd) > 1) {
       inf.crps.fun <- \(x, j) { scoringRules::crps_norm(y = x, mean = mu[j], sd = sd[j]) }
@@ -261,7 +261,7 @@ crps_rf <- function(y, points.cdf) {
 #'
 #' @export
 rcdf_rf <- function(points.cdf, n) {
-  r <- runif(n, min = min(points.cdf$points), max = max(points.cdf$points))
+  r <- stats::runif(n, min = min(points.cdf$points), max = max(points.cdf$points))
 
   cdf0 <- function(r) {
     # Evaluate CDF (stepfun) at thresholds

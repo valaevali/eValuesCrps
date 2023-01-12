@@ -17,9 +17,9 @@ e_value_calculate_lambda_for_alternative_betting(
 \arguments{
 \item{T.F.G}{= (crps.F - crps.G) / inf.crps}
 
-\item{crps.F.para}{of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}}
+\item{crps.F.para}{of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble::tibble with points and cdfs)}}
 
-\item{crps.G.para}{of the form \code{ist("mu" = -mu, "sd" = 1)} or \code{list("points.cdf" = tibble with points and cdfs)}}
+\item{crps.G.para}{of the form \code{ist("mu" = -mu, "sd" = 1)} or \code{list("points.cdf" = tibble::tibble with points and cdfs)}}
 
 \item{inf.crps}{= infimum of crps.F - crps.G over y}
 

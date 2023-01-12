@@ -9,7 +9,7 @@ e_value(
   crps.F.para,
   crps.G.para,
   idx = 1,
-  method = list("alt-cons"),
+  method = "alt-cons",
   lambda = 0.5,
   p.value.method = NA,
   old.run.e.value = NA,
@@ -17,15 +17,15 @@ e_value(
 )
 }
 \arguments{
-\item{y}{oberservations y \in R^k}
+\item{y}{oberservations y in R^k}
 
-\item{crps.F.para}{of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)}
+\item{crps.F.para}{of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble::tibble with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)}
 
-\item{crps.G.para}{of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)}
+\item{crps.G.para}{of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble::tibble with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)}
 
 \item{idx}{= 1, this is an aditional parameter to idex the run of this call}
 
-\item{method}{= list("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the different lambdas}
+\item{method}{= c("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the different lambdas}
 
 \item{lambda}{= 0.5, lambda entry for a fixed value}
 
@@ -46,8 +46,8 @@ multiple e-values sequentially, then run this method once and for the next steps
 because it does optimize the computational costs massively.
 }
 \examples{
-mu <- rnorm(10)
-y <- rnorm(10, mu)
+mu <- stats::rnorm(10)
+y <- stats::rnorm(10, mu)
 e_value(y = y, crps.F.para = list("mu" = mu, "sd" = 1), crps.G.para = list("mu" = 0, "sd" = 2))
 
 }
