@@ -39,17 +39,18 @@
 #' y <- stats::rnorm(10, mu)
 #' result <- e_value(y = y, crps.F.para = list("mu" = mu, "sd" = 1), crps.G.para = list("mu" = 0, "sd" = 2))
 #' new.mu <- stats::rnorm(1)
-#' next_k_e_values(result, new.y = stats::rnorm(1, new.mu), new.crps.F.para = list("mu" = new.mu, "sd" = NA),
+#' e_value(old.run.e.value = result, new.y = stats::rnorm(1, new.mu), new.crps.F.para = list("mu" = new.mu, "sd" = NA),
 #'      new.crps.G.para = list("mu" = NA, "sd" = NA))
+#'
 #'
 #' mu <- stats::rnorm(10)
 #' tau <- sample(c(-1, 1), 10, replace = TRUE)
-#' result.next.k.clim.mixnorm.first <- e_value(rnorm(10), forecast_input(mu = 0, sd = 1), forecast_input(mu = cbind(mu, mu + tau),
-#'      sd = matrix(nrow = 10, ncol = 2, 1), w = matrix(nrow = 10, ncol = 2, 1 / 2)),
+#' result.next.k.clim.mixnorm.first <- e_value(y = rnorm(10), crps.F.para = forecast_input(mu = 0, sd = 1), crps.G.para =
+#'      forecast_input(mu = cbind(mu, mu + tau), sd = matrix(nrow = 10, ncol = 2, 1), w = matrix(nrow = 10, ncol = 2, 1 / 2)),
 #'      method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
 #' new.mu <- stats::rnorm(1)
 #' new.tau <- sample(c(-1, 1), 1)
-#' result.next.k.clim.mixnorm <- next_k_e_values(result.next.k.clim.mixnorm.first, new.y = stats::rnorm(1, new.mu),
+#' e_value(old.run.e.value = result.next.k.clim.mixnorm.first, new.y = stats::rnorm(1, new.mu),
 #'      new.crps.F.para = list("mu" = NA, "sd" = NA),
 #'      new.crps.G.para = list("mu" = c(new.mu, new.mu + new.tau), "sd" = c(1,1), "w" = c(1/2, 1/2)))
 #'
