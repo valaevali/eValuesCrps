@@ -91,7 +91,7 @@ e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
   inf.crps <- get_inf_crps(crps.F.para = crps.F.para, crps.G.para = crps.G.para, n.obs = n.obs, k = k, old.inf = if (!all(is.na(old.run.e.value))) old.run.e.value$inf.crps else NA)
 
   T.F.G <- (crps.F - crps.G) / inf.crps
-  e.values <- list("crps.F.fun" = crps.F.para, "crps.F" = crps.F, "crps.G.fun" = crps.G.para, "crps.G" = crps.G,
+  e.values <- list("crps.F.para" = crps.F.para, "crps.F" = crps.F, "crps.G.para" = crps.G.para, "crps.G" = crps.G,
                    "inf.crps" = inf.crps, "y" = y, "idx" = idx, "lambda" = lambda, "method" = method, "p.value.method" = p.value.method)
 
   logger::log_debug("Starting lambda caclulation")
@@ -141,8 +141,8 @@ check_for_last_run_and_input <- function(y, crps.F.para, crps.G.para, idx, metho
   k <- length(new.y)
 
   y <- old.run.e.value$y
-  crps.F.para <- old.run.e.value$crps.F.fun
-  crps.G.para <- old.run.e.value$crps.G.fun
+  crps.F.para <- old.run.e.value$crps.F.para
+  crps.G.para <- old.run.e.value$crps.G.para
   method <- old.run.e.value$method
   lambda <- old.run.e.value$lambda
   p.value.method <- old.run.e.value$p.value.method
