@@ -67,7 +67,8 @@ mu <- stats::rnorm(10)
 y <- stats::rnorm(10, mu)
 e_value(y = y, crps.F.para = list("mu" = mu, "sd" = 1), crps.G.para = list("mu" = 0, "sd" = 2))
 
-# examples for running this method sequentially
+## examples for running this method sequentially
+# normally distirbuted
 mu <- stats::rnorm(10)
 y <- stats::rnorm(10, mu)
 result <- e_value(y = y, crps.F.para = list("mu" = mu, "sd" = 1), crps.G.para = list("mu" = 0, "sd" = 2))
@@ -75,7 +76,7 @@ new.mu <- stats::rnorm(1)
 e_value(old.run.e.value = result, new.y = stats::rnorm(1, new.mu), new.crps.F.para = list("mu" = new.mu, "sd" = NA),
      new.crps.G.para = list("mu" = NA, "sd" = NA))
 
-
+# mixed normally distributed
 mu <- stats::rnorm(10)
 tau <- sample(c(-1, 1), 10, replace = TRUE)
 result.next.k.clim.mixnorm.first <- e_value(y = rnorm(10), crps.F.para = forecast_input(mu = 0, sd = 1), crps.G.para =
@@ -87,6 +88,16 @@ e_value(old.run.e.value = result.next.k.clim.mixnorm.first, new.y = stats::rnorm
      new.crps.F.para = list("mu" = NA, "sd" = NA),
      new.crps.G.para = list("mu" = c(new.mu, new.mu + new.tau), "sd" = c(1,1), "w" = c(1/2, 1/2)))
 
+# raw forecasts
+crps.F.para <- list("points.cdf" = list(tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1)),
+     tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))))
+crps.G.para <- list("points.cdf" = list(tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1)),
+     tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
+e.value.rf.first <- e_value(y = stats::runif(2, 0, 10), crps.F.para = crps.F.para, crps.G.para = crps.G.para,
+     method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
+result.next.k.rf <- e_value(old.run.e.value = e.value.rf.first, new.y = stats::runif(1, 0, 10),
+     new.crps.F.para = list(tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))),
+     new.crps.G.para = list(tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
 }
 \seealso{
 \code{\link{next_k_e_values}}, \code{\link{crps_rf}}, \code{\link{rcdf_rf}}
