@@ -98,7 +98,9 @@ e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
 
   # Calculating inf.crps
   logger::log_debug("Starting infimum caclulation")
-  inf.crps <- get_inf_crps(crps.F.para = crps.F.para, crps.G.para = crps.G.para, n.obs = n.obs, k = k, old.inf = if (!all(is.na(old.run.e.value))) old.run.e.value$inf.crps else NA)
+  if (any(c("lambda", "GRAPA", "alt-conf", "alt-cons", "alt-more-cons", "alt-mean") %in% method)) {
+    inf.crps <- get_inf_crps(crps.F.para = crps.F.para, crps.G.para = crps.G.para, n.obs = n.obs, k = k, old.inf = if (!all(is.na(old.run.e.value))) old.run.e.value$inf.crps else NA)
+  }
 
   T.F.G <- (crps.F - crps.G) / inf.crps
   e.values <- list("crps.F.para" = crps.F.para, "crps.F" = crps.F, "crps.G.para" = crps.G.para, "crps.G" = crps.G,
@@ -268,7 +270,7 @@ e_value_calculate_lambda_for_grapa_betting <- function(T.F.G) {
   # Here we have to manually add for lambda[1:10] <- 0.5, since the sum should only take [t-1] and flatten it
   lambda.grapa <- append(0.5, lambda.grapa)[-(length(lambda.grapa) + 1)]
   if (length(T.F.G) > 1) {
-    lambda.grapa[2:min(length(T.F.G),10)] <- 0.5
+    lambda.grapa[2:min(length(T.F.G), 10)] <- 0.5
   }
   lambda.grapa[which(lambda.grapa < 0.0001)] <- 0.0001
   lambda.grapa[which(lambda.grapa > 1)] <- 1
