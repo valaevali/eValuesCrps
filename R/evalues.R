@@ -96,38 +96,41 @@ e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
     crps.G <- crps.G.para$fun(y)
   }
 
-  # Calculating inf.crps
-  logger::log_debug("Starting infimum caclulation")
-  if (any(c("lambda", "GRAPA", "alt-conf", "alt-cons", "alt-more-cons", "alt-mean") %in% method)) {
-    inf.crps <- get_inf_crps(crps.F.para = crps.F.para, crps.G.para = crps.G.para, n.obs = n.obs, k = k, old.inf = if (!all(is.na(old.run.e.value))) old.run.e.value$inf.crps else NA)
-  }
-
-  T.F.G <- (crps.F - crps.G) / inf.crps
   e.values <- list("crps.F.para" = crps.F.para, "crps.F" = crps.F, "crps.G.para" = crps.G.para, "crps.G" = crps.G,
-                   "inf.crps" = inf.crps, "y" = y, "idx" = idx, "lambda" = lambda, "method" = method, "p.value.method" = p.value.method)
+                   "y" = y, "idx" = idx, "lambda" = lambda, "method" = method, "p.value.method" = p.value.method)
 
-  logger::log_debug("Starting lambda caclulation")
-  if ("lambda" %in% method) {
-    # Lambda is fix
-    e.value <- 1 + lambda * T.F.G
-    e.value.prod <- max(cumprod(e.value))
-    e.values <- base::append(e.values, list("e.value.lambda" = e.value, "e.value.lambda.prod" = e.value.prod))
-  }
+  if (any(c("lambda", "GRAPA", "alt-conf", "alt-cons", "alt-more-cons", "alt-mean") %in% method)) {
+    # Calculating inf.crps
+    logger::log_debug("Starting infimum caclulation")
+    inf.crps <- get_inf_crps(crps.F.para = crps.F.para, crps.G.para = crps.G.para, n.obs = n.obs, k = k,
+                             old.inf = if (!all(is.na(old.run.e.value))) old.run.e.value$inf.crps else NA)
 
-  logger::log_debug("Starting GRAPA caclulation")
-  if ("GRAPA" %in% method) {
-    # GRAPA
-    e.values <- base::append(e.values, e_value_calculate_lambda_for_grapa_betting(T.F.G = T.F.G))
-  }
+    T.F.G <- (crps.F - crps.G) / inf.crps
+    e.values <- base::append(e.values, list("inf.crps" = inf.crps))
 
-  logger::log_debug("Starting alternative betting caclulation")
-  if (any(c("alt-conf", "alt-cons", "alt-more-cons") %in% method)) {
-    # Alternative
-    e.values <- base::append(e.values,
-                             e_value_calculate_lambda_for_alternative_betting(T.F.G = T.F.G, crps.F.para = crps.F.para,
-                                                                              crps.G.para = crps.G.para, inf.crps = inf.crps,
-                                                                              method = method, old.run.e.value = old.run.e.value,
-                                                                              k = k))
+    logger::log_debug("Starting lambda caclulation")
+    if ("lambda" %in% method) {
+      # Lambda is fix
+      e.value <- 1 + lambda * T.F.G
+      e.value.prod <- max(cumprod(e.value))
+      e.values <- base::append(e.values, list("e.value.lambda" = e.value, "e.value.lambda.prod" = e.value.prod))
+    }
+
+    logger::log_debug("Starting GRAPA caclulation")
+    if ("GRAPA" %in% method) {
+      # GRAPA
+      e.values <- base::append(e.values, e_value_calculate_lambda_for_grapa_betting(T.F.G = T.F.G))
+    }
+
+    logger::log_debug("Starting alternative betting caclulation")
+    if (any(c("alt-conf", "alt-cons", "alt-more-cons") %in% method)) {
+      # Alternative
+      e.values <- base::append(e.values,
+                               e_value_calculate_lambda_for_alternative_betting(T.F.G = T.F.G, crps.F.para = crps.F.para,
+                                                                                crps.G.para = crps.G.para, inf.crps = inf.crps,
+                                                                                method = method, old.run.e.value = old.run.e.value,
+                                                                                k = k))
+    }
   }
 
   logger::log_debug("Starting p-value caclulation")
@@ -139,14 +142,17 @@ e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
   return(e.values)
 }
 
-check_for_last_run_and_input <- function(y, crps.F.para, crps.G.para, idx, method, lambda, p.value.method, old.run.e.value, new.y, new.crps.F.para, new.crps.G.para) {
+check_for_last_run_and_input <- function(y, crps.F.para, crps.G.para, idx, method, lambda, p.value.method, old.run.e.value,
+                                         new.y, new.crps.F.para, new.crps.G.para) {
   if (all(is.na(old.run.e.value))) {
-    return(check_input(y = y, crps.F.para = crps.F.para, crps.G.para = crps.G.para, idx = idx, method = method, lambda = lambda, p.value.method = p.value.method))
+    return(check_input(y = y, crps.F.para = crps.F.para, crps.G.para = crps.G.para, idx = idx, method = method,
+                       lambda = lambda, p.value.method = p.value.method))
   }
   if (all(is.na(new.y))) {
     stop("new.y cannot be NA when running e_value with old runs input, please provide new.y=?")
   }
-  if ((!any(c("mu", "sd") %in% names(new.crps.F.para)) && !is.list(new.crps.F.para)) || (!any(c("mu", "sd") %in% names(new.crps.G.para)) && !is.list(new.crps.G.para))) {
+  if ((!any(c("mu", "sd") %in% names(new.crps.F.para)) && !is.list(new.crps.F.para)) ||
+    (!any(c("mu", "sd") %in% names(new.crps.G.para)) && !is.list(new.crps.G.para))) {
     stop("New input parameters for both F and G are needed when running e_value with old runs input. If both have only single values for mu and sd (norm), then use new.crps.(F|G).para = list(\"mu\" = NA, \"sd\" = NA).")
   }
 
@@ -164,7 +170,8 @@ check_for_last_run_and_input <- function(y, crps.F.para, crps.G.para, idx, metho
   if (("norm" == crps.F.para$method) &&
     ("mu" %in% names(crps.F.para)) &&
     ("sd" %in% names(crps.F.para))) {
-    crps.F.para <- list("mu" = stats::na.omit(append(crps.F.para$mu, new.crps.F.para$mu)), "sd" = stats::na.omit(append(crps.F.para$sd, new.crps.F.para$sd)))
+    crps.F.para <- list("mu" = stats::na.omit(append(crps.F.para$mu, new.crps.F.para$mu)),
+                        "sd" = stats::na.omit(append(crps.F.para$sd, new.crps.F.para$sd)))
   } else if ("points.cdf" %in% names(crps.F.para) && "raw" == crps.F.para$method) {
     crps.F.para <- list("points.cdf" = append(crps.F.para$points.cdf, new.crps.F.para))
   } else {
@@ -174,7 +181,8 @@ check_for_last_run_and_input <- function(y, crps.F.para, crps.G.para, idx, metho
       stop("For 'mixnorm' all the new parameters for F must be provided and have the same dimensions.")
     }
     if ("w" %in% names(crps.F.para)) {
-      crps.F.para <- list("mu" = rbind(crps.F.para$mu, new.crps.F.para$mu, "sd" = rbind(crps.F.para$sd, new.crps.F.para$sd), "w" = rbind(crps.F.para$w, new.crps.F.para$w)))
+      crps.F.para <- list("mu" = rbind(crps.F.para$mu, new.crps.F.para$mu, "sd" = rbind(crps.F.para$sd, new.crps.F.para$sd),
+                                       "w" = rbind(crps.F.para$w, new.crps.F.para$w)))
     } else {
       crps.F.para <- list("mu" = rbind(crps.F.para$mu, new.crps.F.para$mu, "sd" = rbind(crps.F.para$sd, new.crps.F.para$sd)))
     }
@@ -184,7 +192,8 @@ check_for_last_run_and_input <- function(y, crps.F.para, crps.G.para, idx, metho
   if (("norm" == crps.G.para$method) &&
     ("mu" %in% names(crps.G.para)) &&
     ("sd" %in% names(crps.G.para))) {
-    crps.G.para <- list("mu" = stats::na.omit(append(crps.G.para$mu, new.crps.G.para$mu)), "sd" = stats::na.omit(append(crps.G.para$sd, new.crps.G.para$sd)))
+    crps.G.para <- list("mu" = stats::na.omit(append(crps.G.para$mu, new.crps.G.para$mu)),
+                        "sd" = stats::na.omit(append(crps.G.para$sd, new.crps.G.para$sd)))
   } else if ("points.cdf" %in% names(crps.G.para) && "raw" == crps.G.para$method) {
     crps.G.para <- list("points.cdf" = append(crps.G.para$points.cdf, new.crps.G.para))
   } else {
@@ -194,13 +203,15 @@ check_for_last_run_and_input <- function(y, crps.F.para, crps.G.para, idx, metho
       stop("For 'mixnorm' all the new parameters for G must be provided and have the same dimensions.")
     }
     if ("w" %in% names(crps.G.para)) {
-      crps.G.para <- list("mu" = rbind(crps.G.para$mu, new.crps.G.para$mu), "sd" = rbind(crps.G.para$sd, new.crps.G.para$sd), "w" = rbind(crps.G.para$w, new.crps.G.para$w))
+      crps.G.para <- list("mu" = rbind(crps.G.para$mu, new.crps.G.para$mu), "sd" = rbind(crps.G.para$sd, new.crps.G.para$sd),
+                          "w" = rbind(crps.G.para$w, new.crps.G.para$w))
     } else {
       crps.G.para <- list("mu" = rbind(crps.G.para$mu, new.crps.G.para$mu), "sd" = rbind(crps.G.para$sd, new.crps.G.para$sd))
     }
   }
 
-  return(check_input(y = y, crps.F.para = crps.F.para, crps.G.para = crps.G.para, idx = idx, method = method, lambda = lambda, p.value.method = p.value.method, k = k))
+  return(check_input(y = y, crps.F.para = crps.F.para, crps.G.para = crps.G.para, idx = idx, method = method,
+                     lambda = lambda, p.value.method = p.value.method, k = k))
 }
 
 #' Infimum calculation
@@ -400,7 +411,8 @@ e_value_calculate_lambda_for_alternative_betting_each <- function(T.F.G, crps.F.
 
   e.value.alt <- 1 + lambda.alt * T.F.G
   e.value.alt.prod <- max(cumprod(e.value.alt))
-  result <- stats::setNames(list(e.value.alt, e.value.alt.prod, lambda.alt, crps.alt), c(paste0("e.value.", suffix), paste0("e.value.", suffix, ".prod"), paste0("lambda.", suffix), paste0("crps.", suffix)))
+  result <- stats::setNames(list(e.value.alt, e.value.alt.prod, lambda.alt, crps.alt),
+                            c(paste0("e.value.", suffix), paste0("e.value.", suffix, ".prod"), paste0("lambda.", suffix), paste0("crps.", suffix)))
   return(result)
 }
 
