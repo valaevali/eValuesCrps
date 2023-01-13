@@ -34,7 +34,8 @@
 #' y <- stats::rnorm(10, mu)
 #' e_value(y = y, crps.F.para = list("mu" = mu, "sd" = 1), crps.G.para = list("mu" = 0, "sd" = 2))
 #'
-#' # examples for running this method sequentially
+#' ## examples for running this method sequentially
+#' # normally distirbuted
 #' mu <- stats::rnorm(10)
 #' y <- stats::rnorm(10, mu)
 #' result <- e_value(y = y, crps.F.para = list("mu" = mu, "sd" = 1), crps.G.para = list("mu" = 0, "sd" = 2))
@@ -42,7 +43,7 @@
 #' e_value(old.run.e.value = result, new.y = stats::rnorm(1, new.mu), new.crps.F.para = list("mu" = new.mu, "sd" = NA),
 #'      new.crps.G.para = list("mu" = NA, "sd" = NA))
 #'
-#'
+#' # mixed normally distributed
 #' mu <- stats::rnorm(10)
 #' tau <- sample(c(-1, 1), 10, replace = TRUE)
 #' result.next.k.clim.mixnorm.first <- e_value(y = rnorm(10), crps.F.para = forecast_input(mu = 0, sd = 1), crps.G.para =
@@ -54,6 +55,17 @@
 #'      new.crps.F.para = list("mu" = NA, "sd" = NA),
 #'      new.crps.G.para = list("mu" = c(new.mu, new.mu + new.tau), "sd" = c(1,1), "w" = c(1/2, 1/2)))
 #'
+#' # raw forecasts
+#' crps.F.para <- list("points.cdf" = list(tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1)),
+#'      tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))))
+#' crps.G.para <- list("points.cdf" = list(tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1)),
+#'      tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
+#' e.value.rf.first <- e_value(y = stats::runif(2, 0, 10), crps.F.para = crps.F.para, crps.G.para = crps.G.para,
+#'      method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
+#' result.next.k.rf <- e_value(old.run.e.value = e.value.rf.first, new.y = stats::runif(1, 0, 10),
+#'      new.crps.F.para = list(tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))),
+#'      new.crps.G.para = list(tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
+
 #' @return
 #' Returns a list containing the input values and the calculated e-values and p-values (if specified).
 #'
@@ -134,7 +146,7 @@ check_for_last_run_and_input <- function(y, crps.F.para, crps.G.para, idx, metho
   if (all(is.na(new.y))) {
     stop("new.y cannot be NA when running e_value with old runs input, please provide new.y=?")
   }
-  if (!any(c("mu", "sd", "points.cdf") %in% names(new.crps.F.para)) || !any(c("mu", "sd", "points.cdf") %in% names(new.crps.G.para))) {
+  if ((!any(c("mu", "sd") %in% names(new.crps.F.para)) && !is.list(new.crps.F.para)) || (!any(c("mu", "sd") %in% names(new.crps.G.para)) && !is.list(new.crps.G.para))) {
     stop("New input parameters for both F and G are needed when running e_value with old runs input. If both have only single values for mu and sd (norm), then use new.crps.(F|G).para = list(\"mu\" = NA, \"sd\" = NA).")
   }
 
@@ -257,7 +269,9 @@ e_value_calculate_lambda_for_grapa_betting <- function(T.F.G) {
 
   # Here we have to manually add for lambda[1:10] <- 0.5, since the sum should only take [t-1] and flatten it
   lambda.grapa <- append(0.5, lambda.grapa)[-(length(lambda.grapa) + 1)]
-  lambda.grapa[2:10] <- 0.5
+  if (length(T.F.G) > 1) {
+    lambda.grapa[2:min(length(T.F.G),10)] <- 0.5
+  }
   lambda.grapa[which(lambda.grapa < 0.0001)] <- 0.0001
   lambda.grapa[which(lambda.grapa > 1)] <- 1
 
