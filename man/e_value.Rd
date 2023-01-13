@@ -86,15 +86,15 @@ e_value(old.run.e.value = result.next.k.clim.mixnorm.first, new.y = stats::rnorm
      new.crps.G.para = list("mu" = c(new.mu, new.mu + new.tau), "sd" = c(1,1), "w" = c(1/2, 1/2)))
 
 # raw forecasts
-crps.F.para <- list("points.cdf" = list(tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1)),
-     tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))))
-crps.G.para <- list("points.cdf" = list(tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1)),
-     tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
+crps.F.para <- list("points.cdf" = list(tibble::tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1)),
+     tibble::tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))))
+crps.G.para <- list("points.cdf" = list(tibble::tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1)),
+     tibble::tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
 e.value.rf.first <- e_value(y = stats::runif(2, 0, 10), crps.F.para = crps.F.para, crps.G.para = crps.G.para,
      method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
 result.next.k.rf <- e_value(old.run.e.value = e.value.rf.first, new.y = stats::runif(1, 0, 10),
-     new.crps.F.para = list(tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))),
-     new.crps.G.para = list(tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
+     new.crps.F.para = list(tibble::tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))),
+     new.crps.G.para = list(tibble::tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
 }
 \seealso{
 \code{\link{crps_rf}}, \code{\link{rcdf_rf}}

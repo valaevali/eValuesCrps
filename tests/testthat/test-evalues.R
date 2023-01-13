@@ -193,8 +193,8 @@ test_that("e_value sequential work as expected mixnorm - lambda.alt.more.cons", 
 test_that("e_value sequential work as expected mixnorm - e.value.alt.more.cons.prod", { expect_equal(length(result.next.k.clim.mixnorm$e.value.alt.more.cons.prod), 1) })
 test_that("e_value sequential work as expected mixnorm - e.value.alt.more.cons.prod - type", { expect_type(result.next.k.clim.mixnorm$e.value.alt.more.cons.prod, "double") })
 
-crps.F.para <- list("points.cdf" = list(tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1)), tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))))
-crps.G.para <- list("points.cdf" = list(tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1)), tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
+crps.F.para <- list("points.cdf" = list(tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1)), tibble::tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))))
+crps.G.para <- list("points.cdf" = list(tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1)), tibble::tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
 e.value.rf.first <- e_value(y = stats::runif(2, 0, 10), crps.F.para = crps.F.para, crps.G.para = crps.G.para, method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
 result.next.k.rf <- e_value(old.run.e.value = e.value.rf.first, new.y = stats::runif(1, 0, 10), new.crps.F.para = list(tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))), new.crps.G.para = list(tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
 test_that("e_value sequential work as expected raw forecast - dim crps.alt.cons", { expect_equal(dim(result.next.k.rf$crps.alt.cons), c(3, 50)) })
