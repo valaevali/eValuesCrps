@@ -1,16 +1,16 @@
-check_input <- function(y, crps.F.para, crps.G.para, idx, method, lambda, p.value.method) {
+check_input <- function(y, crps.F.para, crps.G.para, idx, method, lambda, p.value.method, k = NA) {
   if (all(is.na(y)) || !is.vector(y)) {
     stop("The parameter y had to be a vector.")
   }
 
-  check_input_crps_para(crps.F.para, "F")
-  check_input_crps_para(crps.G.para, "G")
+  check_input_crps_para(crps.para = crps.F.para, f.g =  "F")
+  check_input_crps_para(crps.para = crps.G.para, f.g = "G")
 
   if (is.na(idx)) {
     warning("Setting iteration to '1'")
     idx <- 1
   }
-  if (!(any(c("lambda", "GRAPA", "alt-conf", "alt-cons", "alt-more-cons", "alt-mean") %in% method))) {
+  if (!(any(c("lambda", "GRAPA", "alt-conf", "alt-cons", "alt-more-cons", "alt-mean") %in% method)) && is.na(p.value.method)) {
     warning("Parameter 'method' did not match any defined methods, setting to default 'lambda' for a fixed value")
     method <- list("lambda")
   }
@@ -31,7 +31,8 @@ check_input <- function(y, crps.F.para, crps.G.para, idx, method, lambda, p.valu
     p.value.method <- "t"
   }
 
-  return(list("idx" = idx, "method" = method, "lambda" = lambda, "p.value.method" = p.value.method))
+  return(list("idx" = idx, "method" = method, "lambda" = lambda, "p.value.method" = p.value.method,
+              "crps.F.para" = crps.F.para, "crps.G.para" = crps.G.para, "y" = y, "k" = k))
 }
 
 check_input_crps_para <- function(crps.para, f.g) {

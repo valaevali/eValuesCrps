@@ -13,19 +13,24 @@ e_value(
   lambda = 0.5,
   p.value.method = NA,
   old.run.e.value = NA,
-  k = NA
+  new.y = NA,
+  new.crps.F.para = NA,
+  new.crps.G.para = NA
 )
 }
 \arguments{
 \item{y}{oberservations y in R^k}
 
-\item{crps.F.para}{of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble::tibble with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)}
+\item{crps.F.para}{of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble::tibble
+with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)}
 
-\item{crps.G.para}{of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble::tibble with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)}
+\item{crps.G.para}{of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble::tibble
+with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)}
 
 \item{idx}{= 1, this is an aditional parameter to idex the run of this call}
 
-\item{method}{= c("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the different lambdas}
+\item{method}{= c("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names
+for calculating the different lambdas, if you want only the p-value provide an empty list.}
 
 \item{lambda}{= 0.5, lambda entry for a fixed value}
 
@@ -33,6 +38,16 @@ e_value(
 
 \item{old.run.e.value}{= NA, is the return of the last call to \code{e_value}, this can be called directly or with the function
 \code{\link{next_k_e_values}}.}
+
+\item{new.y}{= NA, oberservations y in R^k, is the new observation to evaluate}
+
+\item{new.crps.F.para}{= NA, of the form \code{list("mu" = mu[k], "sd" = NA)} or of the form
+\code{list("points.cdf" = tibble::tibble with points and cdfs)}, if either "mu" or "sd" are a single value, set it to NA.
+For mixnorm, put the new row of mu,sd and w as input, see examples.}
+
+\item{new.crps.G.para}{= NA, of the form \code{list("mu" = mu[k], "sd" = NA)} or of the form
+\code{list("points.cdf" = tibble::tibble with points and cdfs)}, if either "mu" or "sd" are a single value, set it to NA.
+For mixnorm, put the new row of mu,sd and w as input, see examples.}
 
 \item{k}{= NA, is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated}
 }
@@ -42,13 +57,34 @@ Returns a list containing the input values and the calculated e-values and p-val
 \description{
 This method is the main method of this package and calculates the e.values for one input.
 This method uses the optional stopping principle, because of \code{max(cumprod(e.value)}. If your goal is to calculate
-multiple e-values sequentially, then run this method once and for the next steps, use \code{\link{next_k_e_values}},
-because it does optimize the computational costs massively.
+multiple e-values sequentially, then for each new run, provide the parameters \code{old.run.e.value},\code{k}, \code{new.y},
+\code{new.crps.F.para} and \code{new.crps.G.para}. With the sequential approach, all the infimums, do not have to be
+calculated for each k, but only for the new ones and also for the betting approach, not the whole matrices have to be
+calculated again. This procedure reduces the computational cost massively.
 }
 \examples{
 mu <- stats::rnorm(10)
 y <- stats::rnorm(10, mu)
 e_value(y = y, crps.F.para = list("mu" = mu, "sd" = 1), crps.G.para = list("mu" = 0, "sd" = 2))
+
+# examples for running this method sequentially
+mu <- stats::rnorm(10)
+y <- stats::rnorm(10, mu)
+result <- e_value(y = y, crps.F.para = list("mu" = mu, "sd" = 1), crps.G.para = list("mu" = 0, "sd" = 2))
+new.mu <- stats::rnorm(1)
+next_k_e_values(result, new.y = stats::rnorm(1, new.mu), new.crps.F.para = list("mu" = new.mu, "sd" = NA),
+     new.crps.G.para = list("mu" = NA, "sd" = NA))
+
+mu <- stats::rnorm(10)
+tau <- sample(c(-1, 1), 10, replace = TRUE)
+result.next.k.clim.mixnorm.first <- e_value(rnorm(10), forecast_input(mu = 0, sd = 1), forecast_input(mu = cbind(mu, mu + tau),
+     sd = matrix(nrow = 10, ncol = 2, 1), w = matrix(nrow = 10, ncol = 2, 1 / 2)),
+     method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
+new.mu <- stats::rnorm(1)
+new.tau <- sample(c(-1, 1), 1)
+result.next.k.clim.mixnorm <- next_k_e_values(result.next.k.clim.mixnorm.first, new.y = stats::rnorm(1, new.mu),
+     new.crps.F.para = list("mu" = NA, "sd" = NA),
+     new.crps.G.para = list("mu" = c(new.mu, new.mu + new.tau), "sd" = c(1,1), "w" = c(1/2, 1/2)))
 
 }
 \seealso{
