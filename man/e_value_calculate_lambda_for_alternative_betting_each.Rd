@@ -33,7 +33,7 @@ e_value_calculate_lambda_for_alternative_betting_each(
 
 \item{crps.alt.old}{is the return value of the last call to \code{\link{e_value}} for the specific betting strategy}
 
-\item{k}{is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated}
+\item{k}{is the parameter to specify how many new observations are evaulated, used for  sequential run of \code{e_value}}
 }
 \value{
 Returns a list for each alternative betting strategy specified, containing \code{e.value.alt.(suffix)},

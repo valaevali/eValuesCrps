@@ -98,7 +98,7 @@ tau <- sample(c(-1, 1), 10, replace = TRUE)
 result.clim.mixnorm <- e_value(rnorm(10), forecast_input(mu = 0, sd = 1), forecast_input(mu = cbind(mu, mu + tau), sd = matrix(nrow = 10, ncol = 2, 1), w = matrix(nrow = 10, ncol = 2, 1 / 2)), method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
 test_that("test e_value does return evalue for mixnorm and climatological", { expect_type(result.clim.mixnorm, "list") })
 
-####### next_k_e_values
+####### sequential run of e_value
 mu <- stats::rnorm(10)
 y <- stats::rnorm(10, mu)
 result.next.k.first <- e_value(y = y, crps.F.para = list("mu" = mu, "sd" = 1), crps.G.para = list("mu" = 0, "sd" = 2), method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")

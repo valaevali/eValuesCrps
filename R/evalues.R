@@ -18,9 +18,7 @@
 #' for calculating the different lambdas, if you want only the p-value provide an empty list.
 #' @param lambda = 0.5, lambda entry for a fixed value
 #' @param p.value.method = NA, can be "t" for t-test and "dm" for dm.test of the package forecast
-#' @param old.run.e.value = NA, is the return of the last call to \code{e_value}, this can be called directly or with the function
-#'      \code{\link{next_k_e_values}}.
-#' @param k = NA, is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated
+#' @param old.run.e.value = NA, is the return of the last call to \code{e_value}.
 #' @param new.y = NA, oberservations y in R^k, is the new observation to evaluate
 #' @param new.crps.F.para = NA, of the form \code{list("mu" = mu[k], "sd" = NA)} or of the form
 #' \code{list("points.cdf" = tibble::tibble with points and cdfs)}, if either "mu" or "sd" are a single value, set it to NA.
@@ -69,7 +67,7 @@
 #' @return
 #' Returns a list containing the input values and the calculated e-values and p-values (if specified).
 #'
-#' @seealso \code{\link{next_k_e_values}}, \code{\link{crps_rf}}, \code{\link{rcdf_rf}}
+#' @seealso \code{\link{crps_rf}}, \code{\link{rcdf_rf}}
 #'
 #' @export
 e_value <- function(y, crps.F.para, crps.G.para, idx = 1,
@@ -184,7 +182,7 @@ check_for_last_run_and_input <- function(y, crps.F.para, crps.G.para, idx, metho
   if (("norm" == crps.G.para$method) &&
     ("mu" %in% names(crps.G.para)) &&
     ("sd" %in% names(crps.G.para))) {
-    crps.G.para <- list("mu" = na.omit(append(crps.G.para$mu, new.crps.G.para$mu)), "sd" = na.omit(append(crps.G.para$sd, new.crps.G.para$sd)))
+    crps.G.para <- list("mu" = stats::na.omit(append(crps.G.para$mu, new.crps.G.para$mu)), "sd" = na.omit(append(crps.G.para$sd, new.crps.G.para$sd)))
   } else if ("points.cdf" %in% names(crps.G.para) && "raw" == crps.G.para$method) {
     crps.G.para <- list("points.cdf" = append(crps.G.para$points.cdf, new.crps.G.para))
   } else {
@@ -211,8 +209,8 @@ check_for_last_run_and_input <- function(y, crps.F.para, crps.G.para, idx, metho
 #' @param crps.F.para of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble::tibble with points and cdfs)}
 #' @param crps.G.para of the form \code{ist("mu" = -mu, "sd" = 1)} or \code{list("points.cdf" = tibble::tibble with points and cdfs)}
 #' @param n.obs is the number of observations
-#' @param k is the number of new observations for \code{\link{next_k_e_values}}
-#' @param old.inf is the old infimum value of the last run of \code{e_value()}, used by \code{\link{next_k_e_values}}
+#' @param k is the number of new observations for sequential run of \code{e_value}
+#' @param old.inf is the old infimum value of the last run of \code{e_value}, use for sequential run of \code{e_Value}
 #'
 #' @return
 #' Returns the infimum value for crps.F - crps.G.
@@ -292,9 +290,8 @@ e_value_calculate_lambda_for_grapa_betting <- function(T.F.G) {
 #' @param inf.crps = infimum of crps.F - crps.G over y
 #' @param method = list("alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the
 #' different lambdas
-#' @param old.run.e.value is the return of the last call to \code{\link{e_value}}, this can be called directly or with the function
-#' \code{\link{next_k_e_values}}
-#' @param k is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated
+#' @param old.run.e.value is the return of the last call to \code{\link{e_value}}, used for sequential run of \code{e_value}
+#' @param k is the parameter to specify how many new observations are evaulated, used for sequential run of \code{e_value}
 #'
 #' @return
 #' Returns a list for each alternative betting strategy specified, containing \code{e.value.alt.(conf|cons|more.cons)},
@@ -356,7 +353,7 @@ e_value_calculate_lambda_for_alternative_betting <- function(T.F.G, crps.F.para,
 #' @param F.proportion F.proportion * crps.F.para$sample.fun + G.proportion * crps.G.para$sample.fun
 #' @param G.proportion F.proportion * crps.F.para$sample.fun + G.proportion * crps.G.para$sample.fun
 #' @param crps.alt.old is the return value of the last call to \code{\link{e_value}} for the specific betting strategy
-#' @param k is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated
+#' @param k is the parameter to specify how many new observations are evaulated, used for  sequential run of \code{e_value}
 #'
 #' @return
 #' Returns a list for each alternative betting strategy specified, containing \code{e.value.alt.(suffix)},

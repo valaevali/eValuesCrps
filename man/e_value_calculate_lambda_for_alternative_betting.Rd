@@ -26,10 +26,9 @@ e_value_calculate_lambda_for_alternative_betting(
 \item{method}{= list("alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the
 different lambdas}
 
-\item{old.run.e.value}{is the return of the last call to \code{\link{e_value}}, this can be called directly or with the function
-\code{\link{next_k_e_values}}}
+\item{old.run.e.value}{is the return of the last call to \code{\link{e_value}}, used for sequential run of \code{e_value}}
 
-\item{k}{is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated}
+\item{k}{is the parameter to specify how many new observations are evaulated, used for sequential run of \code{e_value}}
 }
 \value{
 Returns a list for each alternative betting strategy specified, containing \code{e.value.alt.(conf|cons|more.cons)},

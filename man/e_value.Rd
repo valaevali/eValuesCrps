@@ -36,8 +36,7 @@ for calculating the different lambdas, if you want only the p-value provide an e
 
 \item{p.value.method}{= NA, can be "t" for t-test and "dm" for dm.test of the package forecast}
 
-\item{old.run.e.value}{= NA, is the return of the last call to \code{e_value}, this can be called directly or with the function
-\code{\link{next_k_e_values}}.}
+\item{old.run.e.value}{= NA, is the return of the last call to \code{e_value}.}
 
 \item{new.y}{= NA, oberservations y in R^k, is the new observation to evaluate}
 
@@ -48,8 +47,6 @@ For mixnorm, put the new row of mu,sd and w as input, see examples.}
 \item{new.crps.G.para}{= NA, of the form \code{list("mu" = mu[k], "sd" = NA)} or of the form
 \code{list("points.cdf" = tibble::tibble with points and cdfs)}, if either "mu" or "sd" are a single value, set it to NA.
 For mixnorm, put the new row of mu,sd and w as input, see examples.}
-
-\item{k}{= NA, is the parameter used for \code{\link{next_k_e_values}} to specify how many new observations are evaulated}
 }
 \value{
 Returns a list containing the input values and the calculated e-values and p-values (if specified).
@@ -100,5 +97,5 @@ result.next.k.rf <- e_value(old.run.e.value = e.value.rf.first, new.y = stats::r
      new.crps.G.para = list(tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
 }
 \seealso{
-\code{\link{next_k_e_values}}, \code{\link{crps_rf}}, \code{\link{rcdf_rf}}
+\code{\link{crps_rf}}, \code{\link{rcdf_rf}}
 }
