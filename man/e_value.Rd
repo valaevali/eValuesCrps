@@ -21,16 +21,13 @@ e_value(
 \arguments{
 \item{y}{oberservations y in R^k}
 
-\item{crps.F.para}{of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble::tibble
-with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)}
+\item{crps.F.para}{of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble::tibble with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts). Or you can specify the needed functions directly ('fun' and 'sample.fun' are needed, others optional): 'fun' is the CPRS function taking the observations as parameter (see examples); 'sample.fun' is the random generation function taking two arguments n (number of generated values) and n.obs (number of observations) (ex: rnorm()); 'crps.fun.y.matrix' is the CRPS function taking y in form of a matrix as parameter; 'inf.fun' is the CRPS function to calculate the infimum for some input x and index j - if distribution parameters are a vector this input function should be specified otherwise identical to the 'fun' function.}
 
-\item{crps.G.para}{of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble::tibble
-with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts)}
+\item{crps.G.para}{of the form \code{list("mu" = mu, "sd" = 1)} or of the form \code{list("points.cdf" = tibble::tibble with points and cdfs)} (see \code{\link{crps_rf}} and \code{\link{rcdf_rf}} for more details on raw forecasts). Or you can specify the needed functions directly ('fun' and 'sample.fun' are needed, others optional): 'fun' is the CPRS function taking the observations as parameter (see examples); 'sample.fun' is the random generation function taking two arguments n (number of generated values) and n.obs (number of observations) (ex: rnorm()); 'crps.fun.y.matrix' is the CRPS function taking y in form of a matrix as parameter; 'inf.fun' is the CRPS function to calculate the infimum for some input x and index j - if distribution parameters are a vector this input function should be specified otherwise identical to the 'fun' function.}
 
 \item{idx}{= 1, this is an aditional parameter to idex the run of this call}
 
-\item{method}{= c("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names
-for calculating the different lambdas, if you want only the p-value provide an empty list.}
+\item{method}{= c("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the different lambdas, if you want only the p-value provide an empty list.}
 
 \item{lambda}{= 0.5, lambda entry for a fixed value}
 
@@ -40,24 +37,15 @@ for calculating the different lambdas, if you want only the p-value provide an e
 
 \item{new.y}{= NA, oberservations y in R^k, is the new observation to evaluate}
 
-\item{new.crps.F.para}{= NA, of the form \code{list("mu" = mu[k], "sd" = NA)} or of the form
-\code{list("points.cdf" = tibble::tibble with points and cdfs)}, if either "mu" or "sd" are a single value, set it to NA.
-For mixnorm, put the new row of mu,sd and w as input, see examples.}
+\item{new.crps.F.para}{= NA, of the form \code{list("mu" = mu[k], "sd" = NA)} or of the form \code{list("points.cdf" = tibble::tibble with points and cdfs)}, if either "mu" or "sd" are a single value, set it to NA. For mixnorm, put the new row of mu,sd and w as input, see examples.}
 
-\item{new.crps.G.para}{= NA, of the form \code{list("mu" = mu[k], "sd" = NA)} or of the form
-\code{list("points.cdf" = tibble::tibble with points and cdfs)}, if either "mu" or "sd" are a single value, set it to NA.
-For mixnorm, put the new row of mu,sd and w as input, see examples.}
+\item{new.crps.G.para}{= NA, of the form \code{list("mu" = mu[k], "sd" = NA)} or of the form \code{list("points.cdf" = tibble::tibble with points and cdfs)}, if either "mu" or "sd" are a single value, set it to NA. For mixnorm, put the new row of mu,sd and w as input, see examples.}
 }
 \value{
 Returns a list containing the input values and the calculated e-values and p-values (if specified).
 }
 \description{
-This method is the main method of this package and calculates the e.values for one input.
-This method uses the optional stopping principle, because of \code{max(cumprod(e.value)}. If your goal is to calculate
-multiple e-values sequentially, then for each new run, provide the parameters \code{old.run.e.value},\code{k}, \code{new.y},
-\code{new.crps.F.para} and \code{new.crps.G.para}. With the sequential approach, all the infimums, do not have to be
-calculated for each k, but only for the new ones and also for the betting approach, not the whole matrices have to be
-calculated again. This procedure reduces the computational cost massively.
+This method is the main method of this package and calculates the e.values for one input. This method uses the optional stopping principle, because of \code{max(cumprod(e.value)}. If your goal is to calculate multiple e-values sequentially, then for each new run, provide the parameters \code{old.run.e.value},\code{k}, \code{new.y}, \code{new.crps.F.para} and \code{new.crps.G.para}. With the sequential approach, all the infimums, do not have to be calculated for each k, but only for the new ones and also for the betting approach, not the whole matrices have to be calculated again. This procedure reduces the computational cost massively.
 }
 \examples{
 mu <- stats::rnorm(10)
@@ -70,31 +58,33 @@ mu <- stats::rnorm(10)
 y <- stats::rnorm(10, mu)
 result <- e_value(y = y, crps.F.para = list("mu" = mu, "sd" = 1), crps.G.para = list("mu" = 0, "sd" = 2))
 new.mu <- stats::rnorm(1)
-e_value(old.run.e.value = result, new.y = stats::rnorm(1, new.mu), new.crps.F.para = list("mu" = new.mu, "sd" = NA),
-     new.crps.G.para = list("mu" = NA, "sd" = NA))
+e_value(old.run.e.value = result, new.y = stats::rnorm(1, new.mu), new.crps.F.para = list("mu" = new.mu, "sd" = NA), new.crps.G.para = list("mu" = NA, "sd" = NA))
 
 # mixed normally distributed
 mu <- stats::rnorm(10)
 tau <- sample(c(-1, 1), 10, replace = TRUE)
-result.next.k.clim.mixnorm.first <- e_value(y = rnorm(10), crps.F.para = forecast_input(mu = 0, sd = 1), crps.G.para =
-     forecast_input(mu = cbind(mu, mu + tau), sd = matrix(nrow = 10, ncol = 2, 1), w = matrix(nrow = 10, ncol = 2, 1 / 2)),
-     method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
+result.next.k.clim.mixnorm.first <- e_value(y = rnorm(10), crps.F.para = forecast_input(mu = 0, sd = 1), crps.G.para = forecast_input(mu = cbind(mu, mu + tau), sd = matrix(nrow = 10, ncol = 2, 1), w = matrix(nrow = 10, ncol = 2, 1 / 2)), method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
 new.mu <- stats::rnorm(1)
 new.tau <- sample(c(-1, 1), 1)
-e_value(old.run.e.value = result.next.k.clim.mixnorm.first, new.y = stats::rnorm(1, new.mu),
-     new.crps.F.para = list("mu" = NA, "sd" = NA),
-     new.crps.G.para = list("mu" = c(new.mu, new.mu + new.tau), "sd" = c(1,1), "w" = c(1/2, 1/2)))
+e_value(old.run.e.value = result.next.k.clim.mixnorm.first, new.y = stats::rnorm(1, new.mu), new.crps.F.para = list("mu" = NA, "sd" = NA), new.crps.G.para = list("mu" = c(new.mu, new.mu + new.tau), "sd" = c(1,1), "w" = c(1/2, 1/2)))
 
 # raw forecasts
-crps.F.para <- list("points.cdf" = list(tibble::tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1)),
-     tibble::tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))))
-crps.G.para <- list("points.cdf" = list(tibble::tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1)),
-     tibble::tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
-e.value.rf.first <- e_value(y = stats::runif(2, 0, 10), crps.F.para = crps.F.para, crps.G.para = crps.G.para,
-     method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
-result.next.k.rf <- e_value(old.run.e.value = e.value.rf.first, new.y = stats::runif(1, 0, 10),
-     new.crps.F.para = list(tibble::tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))),
-     new.crps.G.para = list(tibble::tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
+crps.F.para <- list("points.cdf" = list(tibble::tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1)), tibble::tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))))
+crps.G.para <- list("points.cdf" = list(tibble::tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1)), tibble::tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
+e.value.rf.first <- e_value(y = stats::runif(2, 0, 10), crps.F.para = crps.F.para, crps.G.para = crps.G.para, method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
+result.next.k.rf <- e_value(old.run.e.value = e.value.rf.first, new.y = stats::runif(1, 0, 10), new.crps.F.para = list(tibble::tibble("points" = base::sort(stats::runif(10, 0, 15)), "cdf" = c(base::sort(stats::runif(9, 0,1)), 1))), new.crps.G.para = list(tibble::tibble("points" = base::sort(stats::runif(15, 0, 20)), "cdf" = c(base::sort(stats::runif(14, 0, 1)), 1))))
+
+# if you want to use a different distribution than 'norm'/'mixnorm'/'raw' you can define the 2-4 needed functions yourself, with
+n.obs <- 10
+crps.F.para <- list("method" = 't', "fun" = \(y) {scoringRules::crps_t(y = y, df = 8)}, "sample.fun" = \(n, n.obs) {matrix(stats::rt(n * n.obs, df = 8), nrow = n.obs)})
+e.value.student.t <- e_value(y = stats::runif(n.obs, 0, 10), crps.F.para = crps.F.para, crps.G.para = forecast_input(mu = stats::rnorm(n.obs), sd = 1), method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
+e.value.student.t.next.k <- e_value(old.run.e.value = e.value.student.t, new.y = stats::runif(1, 0, 10), new.crps.F.para = list(), new.crps.G.para = list("mu" = stats::rnorm(1), "sd" = NA))
+
+# or
+#' crps.F.para <- list("method" = 't', "fun" = \(y) {scoringRules::crps_t(y = y, df = 8)}, "crps.fun.y.matrix" = \(y) {scoringRules::crps_t(y = y, df = 8)}, "sample.fun" = \(n, n.obs) {matrix(stats::rt(n * n.obs, df = 8), nrow = n.obs)}, "inf.fun" = \(x,j) {scoringRules::crps_t(y = x, df = 8)})
+e.value.student.t <- e_value(y = stats::runif(n.obs, 0, 10), crps.F.para = crps.F.para, crps.G.para = forecast_input(mu = stats::rnorm(n.obs), sd = 1), method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
+e.value.student.t.next.k <- e_value(old.run.e.value = e.value.student.t, new.y = stats::runif(1, 0, 10), new.crps.F.para = list(), new.crps.G.para = list("mu" = stats::rnorm(1), "sd" = NA))
+
 }
 \seealso{
 \code{\link{crps_rf}}, \code{\link{rcdf_rf}}

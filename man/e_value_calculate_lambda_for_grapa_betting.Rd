@@ -10,9 +10,7 @@ e_value_calculate_lambda_for_grapa_betting(T.F.G)
 \item{T.F.G}{= (crps.F - crps.G) / inf.crps}
 }
 \value{
-Returns a list containing the calculated \code{e.value.grapa}, \code{e.value.grapa.prod} and the corresponding
-\code{lambda.grapa}. \code{e.value.grapa} and \code{lambda.grapa} are both vectors of the size of the observation.
-\code{e.value.grapa.prod} is the e-value process at time k (number of observations).
+Returns a list containing the calculated \code{e.value.grapa}, \code{e.value.grapa.prod} and the corresponding \code{lambda.grapa}. \code{e.value.grapa} and \code{lambda.grapa} are both vectors of the size of the observation. \code{e.value.grapa.prod} is the e-value process at time k (number of observations).
 }
 \description{
 This method calculates the lambda with the grapa betting strategy

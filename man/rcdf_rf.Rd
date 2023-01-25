@@ -7,8 +7,7 @@
 rcdf_rf(points.cdf, n)
 }
 \arguments{
-\item{points.cdf}{a \code{data.frame} of numeric variables, used to compute the empirical distribution of the
-variables in \code{points.cdf}.}
+\item{points.cdf}{a \code{data.frame} of numeric variables, used to compute the empirical distribution of the variables in \code{points.cdf}.}
 
 \item{n}{is the number of randomly generated thresholds to evaluate the cdf at.}
 }
@@ -16,13 +15,10 @@ variables in \code{points.cdf}.}
 A vector of probabilities giving the evaluated CDFs at the randomly generated thresholds.
 }
 \description{
-Evaluate the cumulative distribution function (CDF) of raw forecasts in a \code{data.frame} at
-randomly generated thresholds.
+Evaluate the cumulative distribution function (CDF) of raw forecasts in a \code{data.frame} at randomly generated thresholds.
 }
 \details{
-The CDFs are considered as piecewise constant stepfunctions. The \code{points} in the \code{data.frame}
-\code{points.cdf} are the points where the empirical distribution of the forecasts has jumps and \code{cdf} in the
-\code{data.frame} \code{points.cdf} are the corresponding CDF values.
+The CDFs are considered as piecewise constant stepfunctions. The \code{points} in the \code{data.frame} \code{points.cdf} are the points where the empirical distribution of the forecasts has jumps and \code{cdf} in the \code{data.frame} \code{points.cdf} are the corresponding CDF values.
 }
 \seealso{
 \code{\link{e_value}}

@@ -19,8 +19,7 @@ optim_inf_value(f, start.points = 2, min.value = 1e-04, max.value = 1)
 Returns a single infimum value.
 }
 \description{
-This method makes a gitter search for global minima. The start points are taken in between the
-\code{min.value} and the \code{max.value}.
+This method makes a gitter search for global minima. The start points are taken in between the \code{min.value} and the \code{max.value}.
 }
 \seealso{
 \code{\link{e_value}}

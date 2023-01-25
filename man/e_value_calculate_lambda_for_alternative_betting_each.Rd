@@ -6,6 +6,7 @@
 \usage{
 e_value_calculate_lambda_for_alternative_betting_each(
   T.F.G,
+  n.obs,
   crps.F.para,
   crps.G.para,
   inf.crps,
@@ -18,6 +19,8 @@ e_value_calculate_lambda_for_alternative_betting_each(
 }
 \arguments{
 \item{T.F.G}{= (crps.F - crps.G) / inf.crps}
+
+\item{n.obs}{is the number of observations}
 
 \item{crps.F.para}{of the form \code{list("mu" = mu, "sd" = 1)} or \code{list("points.cdf" = tibble::tibble with points and cdfs)}}
 
@@ -36,10 +39,7 @@ e_value_calculate_lambda_for_alternative_betting_each(
 \item{k}{is the parameter to specify how many new observations are evaulated, used for  sequential run of \code{e_value}}
 }
 \value{
-Returns a list for each alternative betting strategy specified, containing \code{e.value.alt.(suffix)},
-\code{e.value.alt.(suffix).prod} and \code{lambda.alt.(suffix)}.
-\code{e.value.alt.(suffix)} and \code{lambda.alt.(suffix)} are both vectors of the size of
-the observation. \code{e.value.alt.(suffix).prod} is the e-value process at time k (number of observations).
+Returns a list for each alternative betting strategy specified, containing \code{e.value.alt.(suffix)}, \code{e.value.alt.(suffix).prod} and \code{lambda.alt.(suffix)}. \code{e.value.alt.(suffix)} and \code{lambda.alt.(suffix)} are both vectors of the size of the observation. \code{e.value.alt.(suffix).prod} is the e-value process at time k (number of observations).
 }
 \description{
 This method calculates the lambda with the alternative betting strategy for each strategy, or can be used to calculate
