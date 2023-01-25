@@ -150,7 +150,7 @@ create_crps_fun <- function(mu = 0, sd = 1, w = 1, points.cdf = NA, ...) {
     method <- 'mixnorm'
     crps.fun <- \(y) { scoringRules::crps_mixnorm(y = y, m = mu, s = sd, w = w) }
     crps.fun.y.matrix <- \(y) { sapply(1:dim(y)[2], \(i) {scoringRules::crps_mixnorm(y = y[, i], m = mu, s = sd, w = w)}) }
-    sample.fun <- \(n, n.obs) { matrix(stats::rnorm(n * n.obs, mean = mu, sd = sd), nrow = n.obs) }
+    sample.fun <- \(n, n.obs) { matrix(stats::rnorm(n * n.obs, mean = mu * w, sd = sd * w^2), nrow = n.obs) }
     inf.crps.fun <- \(x, j) { scoringRules::crps_mixnorm(y = x, m = as.matrix(t(mu[j,]), nrow = 1), s = as.matrix(t(sd[1,])), w = as.matrix(t(w[1,]))) }
   } else if (!all(is.na(points.cdf))) {
     method <- 'raw'
