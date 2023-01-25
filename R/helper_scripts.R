@@ -219,8 +219,8 @@ crps_rf <- function(y, points.cdf) {
 
   w <- c(0, diff(points.cdf$cdf))
   a <- points.cdf$cdf + 0.5 * w
-  crps0 <- function(y) 2 * sum(points.cdf$cdf * ((y < points.cdf$points) - a) * (points.cdf$points - y))
-  sapply(y, crps0)
+  crps <- function(y) 2 * sum(points.cdf$cdf * ((y < points.cdf$points) - a) * (points.cdf$points - y))
+  sapply(y, crps)
 }
 
 #' Random values of the cumulative distribution function (CDF) of raw forecasts
@@ -233,7 +233,7 @@ crps_rf <- function(y, points.cdf) {
 #' @param n is the number of randomly generated thresholds to evaluate the cdf at.
 #'
 #' @details
-#' The CDFs are considered as piecewise constant stepfunctions. The \code{points} in the \code{data.frame} \code{points.cdf} are the points where the empirical distribution of the forecasts has jumps and \code{cdf} in the \code{data.frame} \code{points.cdf} are the corresponding CDF values.
+#' The CDFs are considered as piecewise constant stepfunctions. The \code{points} in the \code{data.frame} \code{points.cdf} are the points where the empirical distribution of the forecasts has jumps and \code{cdf} in the \code{data.frame} \code{points.cdf} are the corresponding CDF values. This function uses adapted code taken from the function \code{cdf} of the \pkg{isoditrreg} package.
 #'
 #' @return
 #' A vector of probabilities giving the evaluated CDFs at the randomly generated thresholds.
@@ -244,10 +244,10 @@ crps_rf <- function(y, points.cdf) {
 rcdf_rf <- function(points.cdf, n) {
   r <- stats::runif(n, min = min(points.cdf$points), max = max(points.cdf$points))
 
-  cdf0 <- function(r) {
-    # Evaluate CDF (stepfun) at thresholds
+  cdf <- function(r) {
+    # Evaluate CDF (stepfun) at random thresholds
     stats::stepfun(x = points.cdf$points, y = c(0, points.cdf$cdf))(r)
   }
 
-  sapply(r, cdf0)
+  sapply(r, cdf)
 }

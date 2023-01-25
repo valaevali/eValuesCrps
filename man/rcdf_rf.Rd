@@ -18,7 +18,7 @@ A vector of probabilities giving the evaluated CDFs at the randomly generated th
 Evaluate the cumulative distribution function (CDF) of raw forecasts in a \code{data.frame} at randomly generated thresholds.
 }
 \details{
-The CDFs are considered as piecewise constant stepfunctions. The \code{points} in the \code{data.frame} \code{points.cdf} are the points where the empirical distribution of the forecasts has jumps and \code{cdf} in the \code{data.frame} \code{points.cdf} are the corresponding CDF values.
+The CDFs are considered as piecewise constant stepfunctions. The \code{points} in the \code{data.frame} \code{points.cdf} are the points where the empirical distribution of the forecasts has jumps and \code{cdf} in the \code{data.frame} \code{points.cdf} are the corresponding CDF values. This function uses adapted code taken from the function \code{cdf} of the \pkg{isoditrreg} package.
 }
 \seealso{
 \code{\link{e_value}}
