@@ -47,7 +47,7 @@ special_forecasts <- function(mu, tau, n.obs, loosing.power.forecasts = FALSE, u
 #' This method provides predefined forecasts for the log score.
 #' @export
 special_forecasts_logs <- function(mu, tau, n.obs, loosing.power.forecasts = FALSE, usual.forecasts = TRUE) {
-  forecasts <- list("perfect" = list("mu" = mu, "sd" = 1, "main" = TRUE, "method" = 'norm', "fun" = \(y) {scoringRules::logs_norm(y = y, mean = mu, sd = 1)}, "sample.fun" = \(n, n.nobs) {matrix(rnorm(n * n.obs, mean = mu, sd = 1), nrow = n.obs)}, "inf.fun" = \(x,j) {scoringRules::logs_norm(y = x, mean = mu[j], sd = 1)}))
+  forecasts <- list("perfect" = list("mu" = mu, "sd" = 1, "main" = TRUE, "method" = 'norm', "fun" = \(y) {scoringRules::logs_norm(y = y, mean = mu, sd = 1)}, "sample.fun" = \(n, n.obs) {matrix(rnorm(n * n.obs, mean = mu, sd = 1), nrow = n.obs)}, "inf.fun" = \(x,j) {scoringRules::logs_norm(y = x, mean = mu[j], sd = 1)}))
   if (loosing.power.forecasts == TRUE) {
     forecasts <- base::append(forecasts, list(
       "perfect-m-0.01" =  list("mu" = mu + 0.01,  "sd" = 1,"method" = 'norm', "fun" = \(y) {scoringRules::logs_norm(y = y, mean =  mu + 0.01,  sd = 1)}, "sample.fun" = \(n, n.obs) {matrix(rnorm(n * n.obs, mean = mu + 0.01,  sd = 1), nrow = n.obs)}, "inf.fun" = \(x, j) {scoringRules::logs_norm(y = x, mean =  mu[j] + 0.01, sd = 1)} ),
