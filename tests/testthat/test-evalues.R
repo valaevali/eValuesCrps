@@ -323,12 +323,12 @@ test_that("e_value sequential work as expected for random distribution - lambda.
 test_that("e_value sequential work as expected for random distribution - e.value.alt.more.cons.prod", { expect_equal(length(e.value.student.t.next.k$e.value.alt.more.cons.prod), 1) })
 test_that("e_value sequential work as expected for random distribution - e.value.alt.more.cons.prod - type", { expect_type(e.value.student.t.next.k$e.value.alt.more.cons.prod, "double") })
 
-### testing with a different scoring function
+### testing with a different scoring function -- logarithmic score
 n.obs <- 10
 mu <- rnorm(n.obs)
 new.mu <- rnorm(1)
-logs.F.para <- list("mu" = mu, "sd" = 1, "main" = TRUE, "method" = 'norm', "fun" = \(y) {scoringRules::logs_norm(y = y, mean = mu, sd = 1)}, "sample.fun" = \(n, n.obs) {matrix(rnorm(n * n.obs, mean = mu, sd = 1), nrow = n.obs)}, "inf.fun" = \(x,j) {scoringRules::logs_norm(y = x, mean = mu[j], sd = 1)})
-logs.G.para <- list("mu" = mu + 0.01,  "sd" = 1, "method" = 'norm', "fun" = \(y) {scoringRules::logs_norm(y = y, mean =  mu + 0.01,  sd = 1)}, "sample.fun" = \(n, n.obs) {matrix(rnorm(n * n.obs, mean = mu + 0.01,  sd = 1), nrow = n.obs)}, "inf.fun" = \(x, j) {scoringRules::logs_norm(y = x, mean =  mu[j] + 0.01, sd = 1)} )
+logs.F.para <- list("mu" = mu, "sd" = 1, "main" = TRUE, "method" = 'norm-logs', "fun" = \(y) {scoringRules::logs_norm(y = y, mean = mu, sd = 1)}, "sample.fun" = \(n, n.obs) {matrix(rnorm(n * n.obs, mean = mu, sd = 1), nrow = n.obs)}, "inf.fun" = \(x,j) {scoringRules::logs_norm(y = x, mean = mu[j], sd = 1)})
+logs.G.para <- list("mu" = mu + 0.01,  "sd" = 1, "method" = 'norm-logs', "fun" = \(y) {scoringRules::logs_norm(y = y, mean =  mu + 0.01,  sd = 1)}, "sample.fun" = \(n, n.obs) {matrix(rnorm(n * n.obs, mean = mu + 0.01,  sd = 1), nrow = n.obs)}, "inf.fun" = \(x, j) {scoringRules::logs_norm(y = x, mean =  mu[j] + 0.01, sd = 1)} )
 e.value.log.score <- e_value(y = stats::rnorm(n.obs), crps.F.para = logs.F.para, crps.G.para = logs.G.para, method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
 e.value.log.score.next.k <- e_value(old.run.e.value = e.value.log.score, new.y = stats::rnorm(1, new.mu), new.crps.F.para = list("mu" = new.mu, "sd" = NA), new.crps.G.para = list("mu" = new.mu + 0.01, "sd" = NA))
 test_that("e_value sequential work as expected for log score - dim crps.alt.cons", { expect_equal(dim(e.value.log.score.next.k$crps.alt.cons), c(11, 50)) })

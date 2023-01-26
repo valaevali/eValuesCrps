@@ -53,6 +53,15 @@
 #' e.value.student.t <- e_value(y = stats::runif(n.obs, 0, 10), crps.F.para = crps.F.para, crps.G.para = forecast_input(mu = stats::rnorm(n.obs), sd = 1), method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
 #' e.value.student.t.next.k <- e_value(old.run.e.value = e.value.student.t, new.y = stats::runif(1, 0, 10), new.crps.F.para = list(), new.crps.G.para = list("mu" = stats::rnorm(1), "sd" = NA))
 #'
+#' # if you want to use a different score than the CRPS
+#' n.obs <- 10
+#' mu <- rnorm(n.obs)
+#' new.mu <- rnorm(1)
+#' logs.F.para <- list("mu" = mu, "sd" = 1, "main" = TRUE, "method" = 'norm', "fun" = \(y) {scoringRules::logs_norm(y = y, mean = mu, sd = 1)}, "sample.fun" = \(n, n.obs) {matrix(rnorm(n * n.obs, mean = mu, sd = 1), nrow = n.obs)}, "inf.fun" = \(x,j) {scoringRules::logs_norm(y = x, mean = mu[j], sd = 1)})
+#' logs.G.para <- list("mu" = mu + 0.01,  "sd" = 1, "method" = 'norm', "fun" = \(y) {scoringRules::logs_norm(y = y, mean =  mu + 0.01,  sd = 1)}, "sample.fun" = \(n, n.obs) {matrix(rnorm(n * n.obs, mean = mu + 0.01,  sd = 1), nrow = n.obs)}, "inf.fun" = \(x, j) {scoringRules::logs_norm(y = x, mean =  mu[j] + 0.01, sd = 1)} )
+#' e.value.log.score <- e_value(y = stats::rnorm(n.obs), crps.F.para = logs.F.para, crps.G.para = logs.G.para, method = c("alt-cons","GRAPA", "lambda", "alt-conf", "alt-more-cons"), p.value.method = "t")
+#' e.value.log.score.next.k <- e_value(old.run.e.value = e.value.log.score, new.y = stats::rnorm(1, new.mu), new.crps.F.para = list("mu" = new.mu, "sd" = NA), new.crps.G.para = list("mu" = new.mu + 0.01, "sd" = NA))
+#'
 #' @return
 #' Returns a list containing the input values and the calculated e-values and p-values (if specified).
 #'
@@ -147,13 +156,11 @@ check_for_last_run_and_input <- function(y, crps.F.para, crps.G.para, idx, metho
 
   y <- append(y, new.y)
   # F parameters
-  if (("norm" == crps.F.para$method) &&
-    ("mu" %in% names(crps.F.para)) &&
-    ("sd" %in% names(crps.F.para))) {
+  if (grepl("norm", crps.F.para$method) && !grepl("mixnorm", crps.F.para$method) && ("mu" %in% names(crps.F.para)) && ("sd" %in% names(crps.F.para))) {
     crps.F.para <- list("mu" = stats::na.omit(append(crps.F.para$mu, new.crps.F.para$mu)), "sd" = stats::na.omit(append(crps.F.para$sd, new.crps.F.para$sd)))
-  } else if ("points.cdf" %in% names(crps.F.para) && "raw" == crps.F.para$method) {
+  } else if ("points.cdf" %in% names(crps.F.para) && grepl("raw", crps.F.para$method)) {
     crps.F.para <- list("points.cdf" = append(crps.F.para$points.cdf, new.crps.F.para))
-  } else if (crps.F.para$method == 'mixnorm') {
+  } else if (grepl("mixnorm", crps.F.para$method)) {
     if (all(is.na(new.crps.F.para$mu)) || all(is.na(new.crps.F.para$sd)) || ("w" %in% names(crps.F.para) && all(is.na(new.crps.F.para$w)))) {
       stop("For 'mixnorm' all the new parameters for F must be provided and have the same dimensions.")
     }
@@ -165,11 +172,11 @@ check_for_last_run_and_input <- function(y, crps.F.para, crps.G.para, idx, metho
   }
 
   # G parameters
-  if (("norm" == crps.G.para$method) && ("mu" %in% names(crps.G.para)) && ("sd" %in% names(crps.G.para))) {
+  if (grepl("norm", crps.G.para$method) && !grepl("mixnorm", crps.G.para$method) && ("mu" %in% names(crps.G.para)) && ("sd" %in% names(crps.G.para))) {
     crps.G.para <- list("mu" = stats::na.omit(append(crps.G.para$mu, new.crps.G.para$mu)), "sd" = stats::na.omit(append(crps.G.para$sd, new.crps.G.para$sd)))
-  } else if ("points.cdf" %in% names(crps.G.para) && "raw" == crps.G.para$method) {
+  } else if ("points.cdf" %in% names(crps.G.para) && grepl("raw", crps.G.para$method)) {
     crps.G.para <- list("points.cdf" = append(crps.G.para$points.cdf, new.crps.G.para))
-  } else if (crps.G.para$method == 'mixnorm') {
+  } else if (grepl("mixnorm", crps.G.para$method)) {
     if (all(is.na(new.crps.G.para$mu)) || all(is.na(new.crps.G.para$sd)) || ("w" %in% names(crps.G.para) && all(is.na(new.crps.G.para$w)))) {
       stop("For 'mixnorm' all the new parameters for G must be provided and have the same dimensions.")
     }
