@@ -3,7 +3,7 @@ check_input <- function(y, crps.F.para, crps.G.para, idx, method, lambda, p.valu
     stop("The parameter y had to be a vector.")
   }
 
-  check_input_crps_para(crps.para = crps.F.para, f.g =  "F")
+  check_input_crps_para(crps.para = crps.F.para, f.g = "F")
   check_input_crps_para(crps.para = crps.G.para, f.g = "G")
 
   if (is.na(idx)) {
